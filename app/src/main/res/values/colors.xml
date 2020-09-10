@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="transparent">#00000000</color>
+    <color name="colorPrimary">#FF6C18A4</color>
+    <color name="colorPrimaryDark">#FF6C18A4</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="colorBackground">#FFEBE8F1</color>
+
+    <!--  Account Card Colors  -->
+    <color name="colorCashCard">#FFFF5252</color>
+    <color name="colorCreditCard">#FFFF4081</color>
+    <color name="colorCheckingCard">#FFE040FB</color>
+    <color name="colorSavingsCard">#FF7C4DFF</color>
+    <color name="colorPersonalCard">#FF536DFE</color>
+    <color name="colorBudgetCard">#FF448AFF</color>
 </resources>

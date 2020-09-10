@@ -1,6 +1,17 @@
 <resources>
     <string name="app_name">Expended</string>
-    <string name="title_home">Home</string>
+    <string name="title_home">Accounts</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="noAccountsText">Swipe up start adding accounts!</string>
+    <string name="icon_check_attribution">Check by Sophia Bai from the Noun Project</string>
+    <string name="icon_cash_attribution">cash by Kiran Shastry from the Noun Project</string>
+    <string name="icon_credit_attribution">Card by Kiran Shastry from the Noun Project</string>
+    <string name="icon_personal_attribution">personal by Yaroslav Samoylov from the Noun Project</string>
+    <string name="icon_savings_attribution">Saving by mynamepong from the Noun Project</string>
+    <string name="icon_budget_attribution">budget by Smalllike from the Noun Project</string>
+    <string name="transaction_notes_hint">Transaction Notes</string>
+    <string name="default_account_balance">0.00</string>
+    <string name="account_balance_label">Account Balance</string>
+    <string name="account_name_current">Current Account</string>
 </resources>
