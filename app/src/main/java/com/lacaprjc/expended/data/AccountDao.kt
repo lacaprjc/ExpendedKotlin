@@ -5,11 +5,11 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Transaction as RoomTransaction
 import androidx.room.Update
 import com.lacaprjc.expended.ui.model.Account
 import com.lacaprjc.expended.ui.model.AccountWithTransactions
 import com.lacaprjc.expended.ui.model.Transaction
+import androidx.room.Transaction as RoomTransaction
 
 @Dao
 interface AccountDao {
@@ -21,7 +21,7 @@ interface AccountDao {
 
     @RoomTransaction
     @Query("SELECT * FROM Account")
-    suspend fun getAllAccountsWithTransactions(): List<AccountWithTransactions>
+    fun getAllAccountsWithTransactions(): LiveData<List<AccountWithTransactions>>
 
     @RoomTransaction
     @Query("SELECT * FROM Account WHERE accountId = :id")

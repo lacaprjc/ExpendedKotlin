@@ -14,6 +14,9 @@ class AccountWithTransactionsViewModel(private val repository: AccountsWithTrans
     fun getAccountWithTransactions(accountId: Long): LiveData<AccountWithTransactions> =
         repository.getAccountWithTransactions(accountId)
 
+    fun getAllAccountsWithTransactions(): LiveData<List<AccountWithTransactions>> =
+        repository.getAllAccountsWithTransactions()
+
     fun updateTransaction(transaction: Transaction) = viewModelScope.launch(Dispatchers.IO) {
         repository.updateTransaction(transaction)
     }

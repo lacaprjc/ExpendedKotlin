@@ -14,7 +14,7 @@ import com.lacaprjc.expended.util.getAssociatedIcon
 
 class AccountAdapter(
     private val onClickListener: ((Account) -> Unit)? = null,
-    private val onLongClickListener: ((Account) -> Unit)? = null
+    private val onLongClickListener: ((Account, Double) -> Unit)? = null
 ) : RecyclerView.Adapter<AccountAdapter.ViewHolder>() {
 
     companion object {
@@ -24,7 +24,6 @@ class AccountAdapter(
 
             override fun areContentsTheSame(oldItem: Account, newItem: Account): Boolean =
                 oldItem.name == newItem.name
-                        && oldItem.balance == newItem.balance
                         && oldItem.accountType == newItem.accountType
                         && oldItem.notes == newItem.notes
 
@@ -32,6 +31,7 @@ class AccountAdapter(
     }
 
     private val differ: AsyncListDiffer<Account> = AsyncListDiffer(this, DIFF_CALLBACK)
+    private var balances = emptyList<Double>()
 
     class ViewHolder(val binding: AccountItemBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -64,7 +64,7 @@ class AccountAdapter(
         }
 
         with(holder.binding.accountBalance) {
-            text = "$ ${account.balance}"
+            text = "$ ${balances[position]}"
             setTextColor(accountColor)
         }
 
@@ -76,7 +76,7 @@ class AccountAdapter(
         }
         holder.binding.root.setOnLongClickListener {
             onLongClickListener?.let {
-                it(account)
+                it(account, balances[position])
             }
             true
         }
@@ -84,7 +84,8 @@ class AccountAdapter(
 
     override fun getItemCount(): Int = differ.currentList.size
 
-    fun submitAccounts(accounts: List<Account>) {
+    fun submitAccounts(accounts: List<Account>, balances: List<Double>) {
+        this.balances = balances
         differ.submitList(accounts)
     }
 }

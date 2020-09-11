@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -60,8 +61,20 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
             }
         }
 
+        binding.accountBalanceInputEditText.doOnTextChanged { text, start, _, _ ->
+            text?.let { chars ->
+                val input = chars.toString()
+                val decimals = input.substringAfter(".", "")
+
+                if (decimals.isNotBlank() && decimals.length > 2) {
+                    binding.accountBalanceInputEditText.setText(chars.take(start))
+                    binding.accountBalanceInputEditText.setSelection(start)
+                }
+            }
+        }
+
         binding.negativeButton.setOnClickListener {
-            deleteAccount(accountViewModel.getWorkingAccount().value!!)
+            deleteAccount(accountViewModel.getWorkingAccount().value!!.first)
         }
 
         binding.neutralButton.setOnClickListener {
@@ -98,18 +111,24 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
         accountViewModel.getAccountType().observe(viewLifecycleOwner) { selectedAccountType(it) }
 
         accountViewModel.getWorkingAccount().observe(viewLifecycleOwner) {
-            setAccount(it)
+            setAccount(it.first, it.second)
         }
 
         accountViewModel.getState().observe(viewLifecycleOwner) {
             when (it) {
                 AccountViewModel.State.ADD -> {
+                    binding.accountBalanceLabel.text = "Starting Balance"
+                    binding.accountBalanceInput.isEnabled = true
+
                     binding.positiveButton.text = "ADD"
                     binding.positiveButton.setIconResource(R.drawable.baseline_add_black_24dp)
                     binding.negativeButton.visibility = View.INVISIBLE
                     binding.neutralButton.visibility = View.INVISIBLE
                 }
                 AccountViewModel.State.EDIT -> {
+                    binding.accountBalanceLabel.text = "Account Balance"
+                    binding.accountBalanceInput.isEnabled = false
+
                     binding.positiveButton.text = "Update"
                     binding.positiveButton.setIconResource(R.drawable.baseline_system_update_alt_black_24dp)
                     binding.negativeButton.visibility = View.VISIBLE
@@ -206,7 +225,6 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
 
         return Account(
             name = name,
-            balance = balance,
             accountType = type,
             notes = notes,
             id
@@ -215,12 +233,15 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
 
     private fun addAccount() {
         buildAccount()?.let {
-            accountViewModel.addAccount(it)
+            accountViewModel.addAccount(
+                it,
+                binding.accountBalanceInputEditText.text!!.toString().toDouble()
+            )
         }
     }
 
     private fun updateAccount() {
-        buildAccount(accountViewModel.getWorkingAccount().value!!.accountId)?.let {
+        buildAccount(accountViewModel.getWorkingAccount().value!!.first.accountId)?.let {
             accountViewModel.updateAccount(it)
         }
     }
@@ -240,14 +261,15 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
     }
 
     private fun resetAccount() {
-        val newAccount = Account("", 0.0, AccountType.CASH)
-        accountViewModel.setWorkingAccount(newAccount)
+        val newAccount = Account("", AccountType.CASH)
+        accountViewModel.setWorkingAccount(newAccount, 0.0)
         accountViewModel.setState(AccountViewModel.State.ADD)
+        binding.accountBalanceInput.editText!!.setText("")
     }
 
-    private fun setAccount(account: Account) {
+    private fun setAccount(account: Account, balance: Double) {
         binding.accountNameInput.editText!!.setText(account.name)
-        binding.accountBalanceInput.editText!!.setText(account.balance.toString())
+        binding.accountBalanceInput.editText!!.setText(balance.toString())
         binding.accountNotesInput.editText!!.setText(account.notes)
     }
 }

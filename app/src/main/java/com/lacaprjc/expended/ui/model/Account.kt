@@ -6,7 +6,6 @@ import androidx.room.PrimaryKey
 @Entity
 data class Account(
     val name: String,
-    val balance: Double,
     val accountType: AccountType,
     val notes: String = "",
     @PrimaryKey(autoGenerate = true)

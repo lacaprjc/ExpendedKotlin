@@ -6,7 +6,7 @@ import androidx.room.TypeConverters
 import com.lacaprjc.expended.ui.model.Account
 import com.lacaprjc.expended.ui.model.Transaction
 
-@Database(entities = arrayOf(Account::class, Transaction::class), version = 3)
+@Database(entities = [Account::class, Transaction::class], version = 1)
 @TypeConverters(AccountTypeConverter::class, TransactionTypeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun accountDao(): AccountDao

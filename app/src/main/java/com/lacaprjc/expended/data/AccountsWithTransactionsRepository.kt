@@ -7,9 +7,11 @@ import com.lacaprjc.expended.ui.model.Transaction
 class AccountsWithTransactionsRepository(private val dao: AccountDao) {
     fun getAllAccounts() = dao.getAllAccounts()
 
-    suspend fun getAllTransactions() = dao.getAllTransactions()
-
     fun getAccountWithTransactions(accountId: Long) = dao.getAccountWithTransactions(accountId)
+
+    fun getAllAccountsWithTransactions() = dao.getAllAccountsWithTransactions()
+
+    suspend fun getAllTransactions() = dao.getAllTransactions()
 
     suspend fun addAccount(account: Account): Long = dao.addAccount(account)
 

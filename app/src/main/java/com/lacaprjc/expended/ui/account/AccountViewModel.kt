@@ -23,11 +23,11 @@ class AccountViewModel(private val repository: AccountsWithTransactionsRepositor
 
     private val accountType = MutableLiveData(Account.AccountType.CASH)
     private val state = MutableLiveData(State.ADD)
-    private val account = MutableLiveData(Account("", 0.0, Account.AccountType.CASH))
+    private val account = MutableLiveData(Account("", Account.AccountType.CASH) to 0.0)
 
     fun getState(): LiveData<State> = state
 
-    fun getWorkingAccount(): LiveData<Account> = account
+    fun getWorkingAccount(): LiveData<Pair<Account, Double>> = account
 
     fun getAccountType(): LiveData<Account.AccountType> = accountType
 
@@ -35,24 +35,25 @@ class AccountViewModel(private val repository: AccountsWithTransactionsRepositor
         accountType.value = type
     }
 
-    fun setWorkingAccount(account: Account) = viewModelScope.launch {
-        this@AccountViewModel.account.value = account
+    fun setWorkingAccount(account: Account, balance: Double) = viewModelScope.launch {
+        this@AccountViewModel.account.value = account to balance
         setAccountType(account.accountType)
     }
 
-    fun addAccount(account: Account) = viewModelScope.launch(Dispatchers.IO) {
-        val id = repository.addAccount(account)
-        val initialTransaction = Transaction(
-            id,
-            account.balance,
-            LocalDateTime.now(),
-            "Starting Balance",
-            "Initial Transaction",
-            ""
-        )
-        repository.addTransaction(initialTransaction)
-        setState(State.ADDED)
-    }
+    fun addAccount(account: Account, startingBalance: Double) =
+        viewModelScope.launch(Dispatchers.IO) {
+            val id = repository.addAccount(account)
+            val initialTransaction = Transaction(
+                id,
+                startingBalance,
+                LocalDateTime.now(),
+                "Starting Balance",
+                "Initial Transaction",
+                ""
+            )
+            repository.addTransaction(initialTransaction)
+            setState(State.ADDED)
+        }
 
     fun updateAccount(account: Account) = viewModelScope.launch(Dispatchers.IO) {
         repository.updateAccount(account)

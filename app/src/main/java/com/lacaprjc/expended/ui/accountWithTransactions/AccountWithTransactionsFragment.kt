@@ -56,13 +56,31 @@ class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_
         val bottomSheetBehavior: BottomSheetBehavior<MaterialCardView> =
             BottomSheetBehavior.from(binding.transactionFragmentBottomSheetCard)
 
-        val transactionAdapter = TransactionAdapter()
+        val transactionAdapter = TransactionAdapter(
+            onClickListener = {
+                transactionViewModel.setWorkingTransaction(it)
+                transactionViewModel.setState(TransactionViewModel.State.EDIT)
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        )
         val recyclerView = binding.transactionsRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = transactionAdapter
         recyclerView.setHasFixedSize(true)
 
         transactionViewModel.setForAccountId(args.accountId)
+
+        transactionViewModel.getState().observe(viewLifecycleOwner) {
+            when (it) {
+                TransactionViewModel.State.UPDATED,
+                TransactionViewModel.State.ADDED,
+                TransactionViewModel.State.DELETED -> {
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                }
+                else -> {
+                }
+            }
+        }
 
         accountWithTransactionsViewModel.getAccountWithTransactions(args.accountId)
             .observe(viewLifecycleOwner) { accountWithTransactions ->
@@ -81,7 +99,10 @@ class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_
                 binding.accountBalanceCard.setCardBackgroundColor(accountColor)
                 binding.accountBalanceCard.accountName.text = accountWithTransactions.account.name
                 binding.accountBalanceCard.accountBalance.text =
-                    accountWithTransactions.account.balance.toString()
+                    accountWithTransactions.transactions.sumOf {
+                        it.amount
+                    }.toString()
+
                 transactionAdapter.submitTransactions(accountWithTransactions.transactions)
             }
 

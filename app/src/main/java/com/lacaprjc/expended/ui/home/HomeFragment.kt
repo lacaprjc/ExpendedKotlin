@@ -3,6 +3,7 @@ package com.lacaprjc.expended.ui.home
 import android.os.Bundle
 import android.view.View
 import androidx.activity.addCallback
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -18,16 +19,17 @@ import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
 import com.lacaprjc.expended.databinding.FragmentHomeBinding
 import com.lacaprjc.expended.listAdapters.AccountAdapter
 import com.lacaprjc.expended.ui.account.AccountViewModel
+import com.lacaprjc.expended.ui.accountWithTransactions.AccountWithTransactionsViewModel
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
-    private val homeViewModel by navGraphViewModels<HomeViewModel>(R.id.mobile_navigation) {
+    private val homeViewModel by navGraphViewModels<AccountWithTransactionsViewModel>(R.id.mobile_navigation) {
         // TODO: 9/9/20 use HILT to inject into view models
         object : ViewModelProvider.Factory {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
                 val dao =
                     (requireActivity().application as MainApplication).getDatabase().accountDao()
-                return HomeViewModel(AccountsWithTransactionsRepository(dao)) as T
+                return AccountWithTransactionsViewModel(AccountsWithTransactionsRepository(dao)) as T
             }
         }
     }
@@ -43,6 +45,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        requireActivity().window.statusBarColor =
+            ContextCompat.getColor(requireContext(), R.color.colorPrimary)
+
         val binding = FragmentHomeBinding.bind(view)
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.accountFragmentBottomSheetCard)
 
@@ -54,8 +59,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     )
                 )
             },
-            onLongClickListener = {
-                accountViewModel.setWorkingAccount(it)
+            onLongClickListener = { account, balance ->
+                accountViewModel.setWorkingAccount(account, balance)
                 accountViewModel.setState(AccountViewModel.State.EDIT)
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
@@ -65,12 +70,23 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         recyclerView.adapter = accountAdapter
         recyclerView.setHasFixedSize(true)
 
-        homeViewModel.getAccounts().observe(viewLifecycleOwner) {
-            accountAdapter.submitAccounts(it)
+        homeViewModel.getAllAccountsWithTransactions()
+            .observe(viewLifecycleOwner) { allAccountsWithTransactions ->
+                val accounts = allAccountsWithTransactions.map {
+                    it.account
+                }
 
-            binding.noAccountsText.visibility =
-                if (it.isNotEmpty()) View.INVISIBLE else View.VISIBLE
-        }
+                val balances = allAccountsWithTransactions.map { accountWithTransactions ->
+                    accountWithTransactions.transactions.sumOf { transaction ->
+                        transaction.amount
+                    }
+                }
+
+                accountAdapter.submitAccounts(accounts, balances)
+
+                binding.noAccountsText.visibility =
+                    if (allAccountsWithTransactions.isNotEmpty()) View.INVISIBLE else View.VISIBLE
+            }
 
         accountViewModel.getState().observe(viewLifecycleOwner) { state ->
             when (state) {

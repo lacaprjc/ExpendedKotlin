@@ -7,11 +7,17 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.lacaprjc.expended.databinding.TransactionItemBinding
 import com.lacaprjc.expended.ui.model.Transaction
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 
-class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
+class TransactionAdapter(
+    val onClickListener: ((transaction: Transaction) -> Unit)? = null
+) : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
     companion object {
-        val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Transaction>() {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Transaction>() {
             override fun areItemsTheSame(oldItem: Transaction, newItem: Transaction): Boolean =
                 oldItem.transactionId == newItem.transactionId
 
@@ -25,7 +31,8 @@ class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.ViewHolder>()
 
         }
 
-        val DATE_TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("M/d/yy")
+        val DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, MMM d yyyy")
+        val TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("h:mm a")
     }
 
     private val differ: AsyncListDiffer<Transaction> = AsyncListDiffer(this, DIFF_CALLBACK)
@@ -44,10 +51,26 @@ class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.ViewHolder>()
 
         holder.binding.transactionName.text = transaction.name
         holder.binding.transactionAmount.text = transaction.amount.toString()
-        holder.binding.transactionDate.text = transaction.date.format(DATE_TIME_FORMATTER)
+        holder.binding.transactionDate.text = transaction.date.format(DATE_FORMATTER)
+
+        holder.binding.root.setOnClickListener {
+            onClickListener?.let {
+                it(transaction)
+            }
+        }
     }
 
     override fun getItemCount(): Int = differ.currentList.size
 
-    fun submitTransactions(transactions: List<Transaction>) = differ.submitList(transactions)
+    fun submitTransactions(transactions: List<Transaction>) {
+        CoroutineScope(Dispatchers.Default).launch {
+            val sortedTransactions = async {
+                transactions.sortedByDescending {
+                    it.date
+                }
+            }
+
+            differ.submitList(sortedTransactions.await())
+        }
+    }
 }
