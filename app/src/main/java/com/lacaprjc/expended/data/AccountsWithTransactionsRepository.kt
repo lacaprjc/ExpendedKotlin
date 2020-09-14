@@ -3,13 +3,14 @@ package com.lacaprjc.expended.data
 import com.lacaprjc.expended.ui.model.Account
 import com.lacaprjc.expended.ui.model.Transaction
 
-// TODO: 9/8/20 use HILT for DI
-class AccountsWithTransactionsRepository(private val dao: AccountDao) {
+class AccountsWithTransactionsRepository constructor(private val dao: AccountDao) {
     fun getAllAccounts() = dao.getAllAccounts()
 
     fun getAccountWithTransactions(accountId: Long) = dao.getAccountWithTransactions(accountId)
 
     fun getAllAccountsWithTransactions() = dao.getAllAccountsWithTransactions()
+
+    suspend fun getAllAccountsWithTransactionsSync() = dao.getAllAccountsWithTransactionsSync()
 
     suspend fun getAllTransactions() = dao.getAllTransactions()
 

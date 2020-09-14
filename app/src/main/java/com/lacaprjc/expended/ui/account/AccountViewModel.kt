@@ -1,7 +1,10 @@
 package com.lacaprjc.expended.ui.account
 
+import androidx.hilt.Assisted
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
@@ -11,8 +14,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
-// TODO: 9/9/20 HANDLE UPDATED STATE
-class AccountViewModel(private val repository: AccountsWithTransactionsRepository) : ViewModel() {
+class AccountViewModel @ViewModelInject constructor(
+    private val repository: AccountsWithTransactionsRepository,
+    @Assisted savedStateHandle: SavedStateHandle
+) : ViewModel() {
     enum class State {
         EDIT,
         ADD,
@@ -44,10 +49,10 @@ class AccountViewModel(private val repository: AccountsWithTransactionsRepositor
         viewModelScope.launch(Dispatchers.IO) {
             val id = repository.addAccount(account)
             val initialTransaction = Transaction(
+                "Starting Balance",
                 id,
                 startingBalance,
                 LocalDateTime.now(),
-                "Starting Balance",
                 "Initial Transaction",
                 ""
             )

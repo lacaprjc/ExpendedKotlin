@@ -11,6 +11,7 @@ import com.lacaprjc.expended.databinding.AccountItemBinding
 import com.lacaprjc.expended.ui.model.Account
 import com.lacaprjc.expended.util.getAssociatedColor
 import com.lacaprjc.expended.util.getAssociatedIcon
+import com.lacaprjc.expended.util.toStringWithDecimalPlaces
 
 class AccountAdapter(
     private val onClickListener: ((Account) -> Unit)? = null,
@@ -64,7 +65,7 @@ class AccountAdapter(
         }
 
         with(holder.binding.accountBalance) {
-            text = "$ ${balances[position]}"
+            text = "$ ${balances[position].toStringWithDecimalPlaces(2)}"
             setTextColor(accountColor)
         }
 

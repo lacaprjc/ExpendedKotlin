@@ -6,29 +6,18 @@ import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.navGraphViewModels
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
-import com.lacaprjc.expended.MainApplication
 import com.lacaprjc.expended.R
-import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
 import com.lacaprjc.expended.databinding.FragmentAccountBinding
 import com.lacaprjc.expended.ui.model.Account
 import com.lacaprjc.expended.ui.model.Account.AccountType
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AccountFragment : Fragment(R.layout.fragment_account) {
-    private val accountViewModel by navGraphViewModels<AccountViewModel>(R.id.mobile_navigation) {
-        object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                val dao =
-                    (requireActivity().application as MainApplication).getDatabase().accountDao()
-                return AccountViewModel(AccountsWithTransactionsRepository(dao)) as T
-            }
-        }
-    }
     private lateinit var binding: FragmentAccountBinding
     private lateinit var accountCard: MaterialCardView
     private lateinit var accountNameInput: TextInputLayout
@@ -38,6 +27,9 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
     private lateinit var savingsAccountCard: MaterialCardView
     private lateinit var personalAccountCard: MaterialCardView
     private lateinit var budgetAccountCard: MaterialCardView
+
+    private val accountViewModel
+            by navGraphViewModels<AccountViewModel>(R.id.mobile_navigation) { defaultViewModelProviderFactory }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = FragmentAccountBinding.bind(view)

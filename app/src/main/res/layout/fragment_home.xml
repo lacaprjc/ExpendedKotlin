@@ -19,7 +19,7 @@
         android:layout_height="0dp"
         android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="80dp"
+        android:layout_marginBottom="@dimen/bottomSheetPeakHeightMargin"
         app:cardCornerRadius="16dp"
         app:cardElevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -34,6 +34,24 @@
             tools:listitem="@layout/account_item" />
 
     </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/settingsButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
+        app:icon="@drawable/ic_settings_24px"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintBottom_toBottomOf="@+id/home_toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/home_toolbar"
+        app:strokeWidth="0dp" />
 
     <TextView
         android:id="@+id/noAccountsText"
@@ -59,7 +77,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="-8dp"
-            app:behavior_peekHeight="64dp"
+            app:behavior_peekHeight="@dimen/bottomSheetPeakHeight"
             app:cardCornerRadius="16dp"
             app:cardElevation="20dp"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">

@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.lacaprjc.expended.databinding.TransactionItemBinding
 import com.lacaprjc.expended.ui.model.Transaction
+import com.lacaprjc.expended.util.toStringWithDecimalPlaces
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -50,7 +51,7 @@ class TransactionAdapter(
         val transaction = differ.currentList[position]
 
         holder.binding.transactionName.text = transaction.name
-        holder.binding.transactionAmount.text = transaction.amount.toString()
+        holder.binding.transactionAmount.text = transaction.amount.toStringWithDecimalPlaces(2)
         holder.binding.transactionDate.text = transaction.date.format(DATE_FORMATTER)
 
         holder.binding.root.setOnClickListener {

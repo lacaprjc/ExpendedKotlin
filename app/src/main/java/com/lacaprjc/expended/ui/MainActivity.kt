@@ -1,10 +1,13 @@
-package com.lacaprjc.expended
+package com.lacaprjc.expended.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
+import com.lacaprjc.expended.R
 import com.lacaprjc.expended.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,4 +24,5 @@ class MainActivity : AppCompatActivity() {
 
 //        bottomAppBar.setupWithNavController(navController, appBarConfiguration)
     }
+
 }

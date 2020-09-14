@@ -13,19 +13,29 @@
 
         <action
             android:id="@+id/action_navigation_home_to_accountDetailsFragment"
-            app:destination="@id/accountDetailsFragment"
+            app:destination="@id/navigation_account_with_transactions"
             app:launchSingleTop="true" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_settings"
+            app:destination="@id/navigation_settings" />
     </fragment>
 
     <fragment
-        android:id="@+id/accountDetailsFragment"
+        android:id="@+id/navigation_account_with_transactions"
         android:name="com.lacaprjc.expended.ui.accountWithTransactions.AccountWithTransactionsFragment"
         android:label="AccountDetailsFragment"
         tools:layout="@layout/fragment_account_with_transactions">
         <argument
             android:name="accountId"
-            app:argType="long"
-            android:defaultValue="0L" />
+            android:defaultValue="0L"
+            app:argType="long" />
     </fragment>
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.lacaprjc.expended.ui.settings.SettingsFragment"
+        android:label="SettingsFragment"
+        tools:layout="@layout/fragment_settings" />
+
 
 </navigation>

@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import androidx.navigation.navGraphViewModels
@@ -13,42 +11,27 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.textfield.TextInputEditText
-import com.lacaprjc.expended.MainApplication
 import com.lacaprjc.expended.R
-import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
 import com.lacaprjc.expended.databinding.FragmentAccountWithTransactionsBinding
 import com.lacaprjc.expended.listAdapters.TransactionAdapter
 import com.lacaprjc.expended.ui.transaction.TransactionViewModel
 import com.lacaprjc.expended.util.getAssociatedColor
 import com.lacaprjc.expended.util.getAssociatedIcon
+import com.lacaprjc.expended.util.toStringWithDecimalPlaces
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_account_with_transactions.view.*
 
+@AndroidEntryPoint
 class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_transactions) {
-
-    private val args by navArgs<AccountWithTransactionsFragmentArgs>()
-    private val accountWithTransactionsViewModel by navGraphViewModels<AccountWithTransactionsViewModel>(
-        R.id.mobile_navigation
-    ) {
-        object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                val dao =
-                    (requireActivity().application as MainApplication).getDatabase().accountDao()
-                return AccountWithTransactionsViewModel(AccountsWithTransactionsRepository(dao)) as T
-            }
-        }
-    }
-
-    private val transactionViewModel by navGraphViewModels<TransactionViewModel>(R.id.mobile_navigation) {
-        object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                val dao =
-                    (requireActivity().application as MainApplication).getDatabase().accountDao()
-                return TransactionViewModel(AccountsWithTransactionsRepository(dao)) as T
-            }
-        }
-    }
-
     private lateinit var binding: FragmentAccountWithTransactionsBinding
+
+    private val transactionViewModel
+            by navGraphViewModels<TransactionViewModel>(R.id.mobile_navigation) { defaultViewModelProviderFactory }
+    private val accountWithTransactionsViewModel
+            by navGraphViewModels<AccountWithTransactionsViewModel>(R.id.mobile_navigation) { defaultViewModelProviderFactory }
+    private val args
+            by navArgs<AccountWithTransactionsFragmentArgs>()
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = FragmentAccountWithTransactionsBinding.bind(view)
@@ -101,7 +84,7 @@ class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_
                 binding.accountBalanceCard.accountBalance.text =
                     accountWithTransactions.transactions.sumOf {
                         it.amount
-                    }.toString()
+                    }.toStringWithDecimalPlaces(2)
 
                 transactionAdapter.submitTransactions(accountWithTransactions.transactions)
             }

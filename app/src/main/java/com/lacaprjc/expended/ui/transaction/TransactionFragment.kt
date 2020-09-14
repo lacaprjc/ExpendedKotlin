@@ -7,35 +7,26 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.navGraphViewModels
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.lacaprjc.expended.MainApplication
 import com.lacaprjc.expended.R
-import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
 import com.lacaprjc.expended.databinding.FragmentTransactionBinding
 import com.lacaprjc.expended.listAdapters.TransactionAdapter.Companion.DATE_FORMATTER
 import com.lacaprjc.expended.listAdapters.TransactionAdapter.Companion.TIME_FORMATTER
 import com.lacaprjc.expended.ui.model.Transaction
+import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 
+@AndroidEntryPoint
 class TransactionFragment : Fragment(R.layout.fragment_transaction) {
     private lateinit var binding: FragmentTransactionBinding
 
-    private val transactionViewModel by navGraphViewModels<TransactionViewModel>(R.id.mobile_navigation) {
-        object : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                val dao =
-                    (requireActivity().application as MainApplication).getDatabase().accountDao()
-                return TransactionViewModel(AccountsWithTransactionsRepository(dao)) as T
-            }
-        }
-    }
+    private val transactionViewModel
+            by navGraphViewModels<TransactionViewModel>(R.id.mobile_navigation) { defaultViewModelProviderFactory }
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -161,7 +152,7 @@ class TransactionFragment : Fragment(R.layout.fragment_transaction) {
         val notes = binding.transactionNotesInput.editText!!.text.toString()
         val forAccountId = transactionViewModel.getForAccountId().value!!
 
-        return Transaction(forAccountId, amount, localDateTime, name, notes, "", id)
+        return Transaction(name, forAccountId, amount, localDateTime, notes, "", id)
     }
 
     private fun addTransaction() {
@@ -182,10 +173,10 @@ class TransactionFragment : Fragment(R.layout.fragment_transaction) {
 
     private fun resetTransaction() {
         val newTransaction = Transaction(
+            "",
             forAccountId = transactionViewModel.getForAccountId().value!!,
             0.0,
             LocalDateTime.now(),
-            "",
             ""
         )
 

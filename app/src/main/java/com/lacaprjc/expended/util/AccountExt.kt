@@ -2,6 +2,7 @@ package com.lacaprjc.expended.util
 
 import com.lacaprjc.expended.R
 import com.lacaprjc.expended.ui.model.Account
+import org.json.JSONObject
 
 fun Account.AccountType.getAssociatedColor() = when (this) {
     Account.AccountType.CASH -> R.color.colorCashCard
@@ -20,3 +21,9 @@ fun Account.AccountType.getAssociatedIcon() = when (this) {
     Account.AccountType.PERSONAL -> R.drawable.ic_noun_personal_104667
     Account.AccountType.BUDGET -> R.drawable.ic_noun_budget_2406949
 }
+
+fun Account.toJson(): JSONObject = JSONObject()
+    .put("name", this.name)
+    .put("accountType", this.accountType.name)
+    .put("notes", this.notes)
+    .put("accountId", this.accountId)

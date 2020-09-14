@@ -2,6 +2,8 @@ package com.lacaprjc.expended.ui.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.json.JSONObject
+import java.util.*
 
 @Entity
 data class Account(
@@ -18,5 +20,18 @@ data class Account(
         SAVINGS,
         PERSONAL,
         BUDGET
+    }
+
+    companion object {
+        fun fromJson(jsonObject: JSONObject): Account {
+            return Account(
+                name = jsonObject.getString("name"),
+                accountType = Account.AccountType.valueOf(
+                    jsonObject.getJSONObject("accountType").getString("type")
+                        .toUpperCase(Locale.getDefault())
+                ),
+                notes = jsonObject.optString("notes", "")
+            )
+        }
     }
 }

@@ -24,6 +24,10 @@ interface AccountDao {
     fun getAllAccountsWithTransactions(): LiveData<List<AccountWithTransactions>>
 
     @RoomTransaction
+    @Query("SELECT * FROM Account")
+    fun getAllAccountsWithTransactionsSync(): List<AccountWithTransactions>
+
+    @RoomTransaction
     @Query("SELECT * FROM Account WHERE accountId = :id")
     fun getAccountWithTransactions(id: Long): LiveData<AccountWithTransactions>
 

@@ -6,7 +6,6 @@
     android:layout_height="wrap_content"
     android:background="#FFF"
     android:backgroundTint="?attr/colorPrimary"
-    android:elevation="5dp"
     android:paddingVertical="20dp"
     android:text="@string/title_home"
     android:textAlignment="center"
