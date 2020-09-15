@@ -22,7 +22,19 @@ data class Transaction(
     companion object {
         private val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("H:m:s")
 
-        fun fromJson(jsonObject: JSONObject, accountId: Long = 0): Transaction {
+        fun fromJson(jsonObject: JSONObject, copyTransactionId: Boolean = true): Transaction {
+            return Transaction(
+                name = jsonObject.getString("name"),
+                amount = jsonObject.getDouble("amount"),
+                notes = jsonObject.optString("notes", ""),
+                media = jsonObject.optString("media", ""),
+                forAccountId = jsonObject.getLong("forAccountId"),
+                date = LocalDateTime.parse(jsonObject.getString("date")),
+                transactionId = if (copyTransactionId) jsonObject.getLong("transactionId") else 0L
+            )
+        }
+
+        fun fromJsonSembast(jsonObject: JSONObject, accountId: Long = 0): Transaction {
             val dateString = jsonObject.getString("date")
             val timeString = jsonObject.getString("time")
 
@@ -38,5 +50,17 @@ data class Transaction(
                 )
             )
         }
+
+//        fun fromCsv(csvRow: String): Transaction {
+//            return Transaction(
+//                name = ,
+//                forAccountId = ,
+//                amount = ,
+//                date = ,
+//                notes = ,
+//                media = ,
+//                transactionId =
+//            )
+//        }
     }
 }

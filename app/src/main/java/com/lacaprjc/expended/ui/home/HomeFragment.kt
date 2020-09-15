@@ -55,6 +55,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
         )
+
         val recyclerView = binding.accountsRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = accountAdapter
@@ -67,14 +68,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner) {
             when (bottomSheetBehavior.state) {
-                BottomSheetBehavior.STATE_COLLAPSED,
-                BottomSheetBehavior.STATE_HIDDEN,
-                BottomSheetBehavior.STATE_SETTLING -> isEnabled = true
+                BottomSheetBehavior.STATE_EXPANDED -> {
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                }
                 else -> {
                     isEnabled = false
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                    activity?.onBackPressed()
                 }
             }
         }

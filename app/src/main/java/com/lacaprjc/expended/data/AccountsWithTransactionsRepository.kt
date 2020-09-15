@@ -1,7 +1,9 @@
 package com.lacaprjc.expended.data
 
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.lacaprjc.expended.ui.model.Account
 import com.lacaprjc.expended.ui.model.Transaction
+import kotlinx.coroutines.runBlocking
 
 class AccountsWithTransactionsRepository constructor(private val dao: AccountDao) {
     fun getAllAccounts() = dao.getAllAccounts()
@@ -25,4 +27,8 @@ class AccountsWithTransactionsRepository constructor(private val dao: AccountDao
     suspend fun updateTransaction(transaction: Transaction) = dao.updateTransaction(transaction)
 
     suspend fun deleteTransaction(transaction: Transaction) = dao.deleteTransaction(transaction)
+
+    fun checkpoint() = runBlocking {
+        dao.checkpoint(SimpleSQLiteQuery("pragma wal_checkpoint(full)"))
+    }
 }

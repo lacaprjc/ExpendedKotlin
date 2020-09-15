@@ -15,7 +15,7 @@ import com.lacaprjc.expended.databinding.FragmentSettingsBinding
 import com.lacaprjc.expended.util.DataFormat
 import com.lacaprjc.expended.util.DataState
 import com.lacaprjc.expended.util.fileExtension
-import com.lacaprjc.expended.util.mimeType
+import com.lacaprjc.expended.util.mimeTypes
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.FileNotFoundException
@@ -45,7 +45,7 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
         binding.exportButton.setOnClickListener {
             MaterialAlertDialogBuilder(it.context)
                 .setTitle("Export Format")
-                .setItems(arrayOf("JSON", "CSV", "SQL")) { dialog, format ->
+                .setItems(arrayOf("JSON", "CSV")) { dialog, format ->
                     val dataFormat = DataFormat.values()[format]
                     settingsViewModel.setCurrentDataFormat(dataFormat)
 
@@ -62,27 +62,13 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                     arrayOf(
                         "JSON",
                         "CSV",
-                        "SQL",
-                        "Sembast (from version ~1.0.3. You may lose your transactions' pictures with this method)"
+                        "Sembast (Deprecated. You may lose your transactions' pictures with this method)"
                     )
                 ) { dialog, format ->
                     val dataFormat = DataFormat.values()[format]
-
-                    val mimeType = when (dataFormat) {
-                        DataFormat.JSON -> TODO()
-                        DataFormat.CSV -> TODO()
-                        DataFormat.SQL -> TODO()
-                        DataFormat.SEMBAST -> "*/*"
-                    }
-
                     settingsViewModel.setCurrentDataFormat(dataFormat)
 
-                    val requestFileIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
-                        type = mimeType
-                    }
-
-                    val shareIntent: Intent = Intent.createChooser(requestFileIntent, null)
-                    startActivityForResult(shareIntent, PICK_FILE_REQUEST_CODE)
+                    chooseImportFile(dataFormat)
                     dialog.dismiss()
                 }
                 .show()
@@ -96,13 +82,16 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
             return
         }
 
+        val mode = if (requestCode == PICK_FILE_REQUEST_CODE) "r" else "w"
+
         dataIntent?.data?.let { dataUri ->
             with(requireActivity()) {
                 val file = try {
                     contentResolver.openFileDescriptor(
                         dataUri,
-                        "rw"
+                        mode
                     )!!
+
                 } catch (e: FileNotFoundException) {
                     Toast.makeText(
                         this,
@@ -112,11 +101,10 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                         .show()
                     return
                 }
+
                 when (requestCode) {
                     PICK_FILE_REQUEST_CODE -> {
-
-                        contentResolver.openInputStream(dataUri)
-                            ?.let { settingsViewModel.importFromFile(it) }
+                        settingsViewModel.import(file.fileDescriptor)
                     }
                     CREATE_DOCUMENT_REQUEST_CODE -> {
                         settingsViewModel.export(file.fileDescriptor, requireContext())
@@ -174,16 +162,18 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
     private fun chooseExportFileLocation(dataFormat: DataFormat) {
         with(requireContext()) {
             getDatabasePath(getString(R.string.database_name))?.absoluteFile.let { file ->
-                val dataIntent = Intent().apply {
-                    action = Intent.ACTION_CREATE_DOCUMENT
-                    type = dataFormat.mimeType
-                    putExtra(Intent.EXTRA_MIME_TYPES, dataFormat.mimeType)
+                val dataIntent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    type = dataFormat.mimeTypes.first()
+
+                    putExtra(Intent.EXTRA_MIME_TYPES, dataFormat.mimeTypes.toTypedArray())
+
                     putExtra(
                         Intent.EXTRA_TITLE,
                         "Expended_backup_${
                             LocalDateTime.now()
                         }${dataFormat.fileExtension}"
                     )
+
                     addCategory(Intent.CATEGORY_OPENABLE)
                 }
 
@@ -193,6 +183,19 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
                 )
             }
         }
+    }
 
+    private fun chooseImportFile(dataFormat: DataFormat) {
+        val requestFileIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = dataFormat.mimeTypes.first()
+
+            if (dataFormat != DataFormat.SEMBAST) {
+                putExtra(Intent.EXTRA_MIME_TYPES, dataFormat.mimeTypes.toTypedArray())
+            }
+        }
+
+        val shareIntent: Intent = Intent.createChooser(requestFileIntent, null)
+        startActivityForResult(shareIntent, PICK_FILE_REQUEST_CODE)
     }
 }
+

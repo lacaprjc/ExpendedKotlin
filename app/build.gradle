@@ -34,16 +34,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
     buildFeatures {
         viewBinding true
+    }
+
+    lintOptions {
+        disable 'NewApi'
     }
 }
 
@@ -80,8 +87,9 @@ dependencies {
     implementation "androidx.room:room-runtime:$versions.roomVersion"
     implementation "androidx.room:room-ktx:$versions.roomVersion"
     kapt "androidx.room:room-compiler:$versions.roomVersion"
-//    implementation "com.squareup.moshi:moshi:$versions.moshiVersion"
-//    kapt "com.squareup.moshi:moshi-kotlin-codegen:$versions.moshiVersion"
+
+    // csv
+    implementation "com.github.doyaaaaaken:kotlin-csv-jvm:$versions.csvVersion"
 
     /*
      * Unit Tests
@@ -92,7 +100,6 @@ dependencies {
     /*
     * Instrumented Tests
     * */
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
+    androidTestImplementation "androidx.test.ext:junit:$versions.androidxTestVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$versions.espressoVersion"
 }

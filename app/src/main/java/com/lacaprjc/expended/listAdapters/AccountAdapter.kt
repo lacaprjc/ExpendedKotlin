@@ -77,7 +77,12 @@ class AccountAdapter(
         }
         holder.binding.root.setOnLongClickListener {
             onLongClickListener?.let {
-                it(account, balances[position])
+                try {
+                    // position may be out of bounds if just deleted an account
+                    it(account, balances[position])
+                } catch (e: IndexOutOfBoundsException) {
+                    e.printStackTrace()
+                }
             }
             true
         }

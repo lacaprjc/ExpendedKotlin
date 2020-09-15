@@ -27,3 +27,10 @@ fun Account.toJson(): JSONObject = JSONObject()
     .put("accountType", this.accountType.name)
     .put("notes", this.notes)
     .put("accountId", this.accountId)
+
+fun Account.toCsvRow(): List<String> = listOf(
+    this.name,
+    this.accountId.toString(),
+    this.accountType.name,
+    this.notes
+)

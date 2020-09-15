@@ -2,6 +2,7 @@ package com.lacaprjc.expended.ui.accountWithTransactions
 
 import android.os.Bundle
 import android.view.View
+import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -96,16 +97,16 @@ class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_
                 }
         }
 
-//        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-//            when (bottomSheetBehavior.state) {
-//                BottomSheetBehavior.STATE_COLLAPSED,
-//                BottomSheetBehavior.STATE_HIDDEN,
-//                BottomSheetBehavior.STATE_SETTLING -> isEnabled = true
-//                else -> {
-//                    isEnabled = false
-//                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-//                }
-//            }
-//        }
+        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner) {
+            when (bottomSheetBehavior.state) {
+                BottomSheetBehavior.STATE_EXPANDED -> {
+                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                }
+                else -> {
+                    isEnabled = false
+                    activity?.onBackPressed()
+                }
+            }
+        }
     }
 }

@@ -5,11 +5,14 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Update
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.lacaprjc.expended.ui.model.Account
 import com.lacaprjc.expended.ui.model.AccountWithTransactions
 import com.lacaprjc.expended.ui.model.Transaction
 import androidx.room.Transaction as RoomTransaction
+
 
 @Dao
 interface AccountDao {
@@ -51,4 +54,7 @@ interface AccountDao {
 
     @Delete
     suspend fun deleteTransaction(transaction: Transaction)
+
+    @RawQuery
+    suspend fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
 }

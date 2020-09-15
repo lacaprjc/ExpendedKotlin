@@ -11,3 +11,12 @@ fun Transaction.toJson(): JSONObject = JSONObject()
     .put("notes", this.notes)
     .put("media", this.media)
     .put("transactionId", this.transactionId)
+
+fun Transaction.toCsvRow(): List<String> = listOf(
+    this.name,
+    this.transactionId.toString(),
+    this.forAccountId.toString(),
+    this.amount.toString(),
+    this.date.toString(),
+    this.notes
+)

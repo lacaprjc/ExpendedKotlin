@@ -23,15 +23,26 @@ data class Account(
     }
 
     companion object {
-        fun fromJson(jsonObject: JSONObject): Account {
+        fun fromJson(jsonObject: JSONObject, copyAccountId: Boolean = true): Account {
             return Account(
                 name = jsonObject.getString("name"),
-                accountType = Account.AccountType.valueOf(
+                accountType = AccountType.valueOf(
+                    jsonObject.getString("accountType"),
+                ),
+                notes = jsonObject.getString("notes"),
+                accountId = if (copyAccountId) jsonObject.getLong("accountId") else 0L
+            )
+        }
+
+        fun fromJsonSembast(jsonObject: JSONObject): Pair<Account, Double> {
+            return Account(
+                name = jsonObject.getString("name"),
+                accountType = AccountType.valueOf(
                     jsonObject.getJSONObject("accountType").getString("type")
                         .toUpperCase(Locale.getDefault())
                 ),
                 notes = jsonObject.optString("notes", "")
-            )
+            ) to jsonObject.getDouble("balance")
         }
     }
 }

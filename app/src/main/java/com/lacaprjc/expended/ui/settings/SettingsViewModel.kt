@@ -8,28 +8,36 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.doyaaaaaken.kotlincsv.client.CsvReader
+import com.github.doyaaaaaken.kotlincsv.client.CsvWriter
 import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
 import com.lacaprjc.expended.ui.model.Account
 import com.lacaprjc.expended.ui.model.AccountWithTransactions
 import com.lacaprjc.expended.ui.model.Transaction
 import com.lacaprjc.expended.util.DataFormat
 import com.lacaprjc.expended.util.DataState
+import com.lacaprjc.expended.util.toCsvRow
 import com.lacaprjc.expended.util.toJson
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.BufferedWriter
-import java.io.File
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.FileReader
 import java.io.FileWriter
-import java.io.InputStream
-import java.nio.channels.FileChannel
+import java.time.LocalDateTime
 
 @ExperimentalCoroutinesApi
 class SettingsViewModel @ViewModelInject constructor(
@@ -39,6 +47,36 @@ class SettingsViewModel @ViewModelInject constructor(
 
     companion object {
         const val SUCCESS_MESSAGE = "Successfully imported accounts."
+
+        private const val accountHeaderName = "Account Name"
+        private const val accountHeaderId = "Account ID"
+        private const val accountHeaderType = "Type"
+        private const val accountHeaderNotes = "Notes"
+        private const val accountHeaderBalance = "Balance"
+        val accountHeaderRow =
+            listOf(
+                accountHeaderName,
+                accountHeaderId,
+                accountHeaderType,
+                accountHeaderNotes,
+                accountHeaderBalance
+            )
+
+        private const val transactionHeaderName = "Transaction Name"
+        private const val transactionHeaderId = "Transaction ID"
+        private const val transactionHeaderForAccountId = "For Account With ID"
+        private const val transactionHeaderAmount = "Amount"
+        private const val transactionHeaderDate = "Date"
+        private const val transactionHeaderNotes = "Notes"
+
+        val transactionHeaderRow = listOf(
+            transactionHeaderName,
+            transactionHeaderId,
+            transactionHeaderForAccountId,
+            transactionHeaderAmount,
+            transactionHeaderDate,
+            transactionHeaderNotes
+        )
     }
 
     private val dataState: MutableLiveData<DataState<Any>> =
@@ -46,25 +84,20 @@ class SettingsViewModel @ViewModelInject constructor(
 
     private var currentDataFormat = DataFormat.JSON
 
-    private val fileContents: MutableLiveData<List<String>> = MutableLiveData(emptyList())
-
     fun setCurrentDataFormat(format: DataFormat) {
         currentDataFormat = format
     }
 
     fun getDataState(): LiveData<DataState<Any>> = dataState
 
-    fun getFileContents(): LiveData<List<String>> = fileContents
+    private suspend fun importAccountWithTransactions(accountWithTransactions: AccountWithTransactions) =
+        coroutineScope {
+            val accountId = async {
+                repository.addAccount(accountWithTransactions.account)
+            }
 
-    private fun importAccount(accountWithTransactions: AccountWithTransactions) =
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val accountId = repository.addAccount(accountWithTransactions.account)
-                accountWithTransactions.transactions.forEach {
-                    repository.addTransaction(it.copy(forAccountId = accountId))
-                }
-            } catch (e: RuntimeException) {
-                dataState.postValue(DataState.Failed(e))
+            accountWithTransactions.transactions.forEach {
+                repository.addTransaction(it.copy(forAccountId = accountId.await()))
             }
         }
 
@@ -72,121 +105,313 @@ class SettingsViewModel @ViewModelInject constructor(
         this.dataState.postValue(dataState)
     }
 
-    fun importFromFile(inputStream: InputStream) =
+    fun import(inputFileDescriptor: FileDescriptor) =
         viewModelScope.launch(Dispatchers.IO) {
             dataState.postValue(DataState.Loading)
 
-            val reader = BufferedReader(inputStream.bufferedReader())
-
-            try {
+            val job = Job()
+            launch(job + CoroutineExceptionHandler { _, throwable ->
+                dataState.postValue(
+                    DataState.Failed(
+                        RuntimeException(
+                            "Failed to import file",
+                            throwable
+                        )
+                    )
+                )
+                throwable.printStackTrace()
+            }) {
                 when (currentDataFormat) {
-                    DataFormat.JSON -> TODO()
-                    DataFormat.CSV -> TODO()
-                    DataFormat.SQL -> TODO()
-                    DataFormat.SEMBAST -> {
-                        // skip the first line
-                        if (reader.readLine() == null) {
-                            return@launch
-                        }
+                    DataFormat.JSON -> importJson(FileReader(inputFileDescriptor).buffered())
+                    DataFormat.CSV -> importCsv(inputFileDescriptor)
+                    DataFormat.SEMBAST -> importSembast(inputFileDescriptor)
+                }
+            }.apply {
+                invokeOnCompletion {
+                    if (it == null) {
+                        dataState.postValue(DataState.Success("Imported ${currentDataFormat.name}"))
+                    }
+                }
+            }
 
-                        reader.forEachLine { json ->
-                            val accountWithTransaction = parseSembast(json)
-                            importAccount(accountWithTransaction)
+            job.join()
+        }
+
+    private suspend fun importJson(reader: BufferedReader) = coroutineScope {
+        val jobs = mutableListOf<Job>()
+        reader.forEachLine {
+            val allAccountsWithTransactionsAsJson = JSONArray(it)
+            for (i in 0 until allAccountsWithTransactionsAsJson.length()) {
+                jobs.add(launch {
+                    val currentAccountWithTransactions: AccountWithTransactions =
+                        AccountWithTransactions.fromJson(
+                            allAccountsWithTransactionsAsJson.getJSONObject(i),
+                            false
+                        )
+
+                    val accountId = async {
+                        repository.addAccount(currentAccountWithTransactions.account)
+                    }
+
+                    currentAccountWithTransactions.transactions.forEach { transaction ->
+                        repository.addTransaction(transaction.copy(forAccountId = accountId.await()))
+                    }
+                })
+            }
+        }
+
+        jobs.joinAll()
+    }
+
+    private suspend fun importCsv(inputFileDescriptor: FileDescriptor) = coroutineScope {
+        CsvReader().open(FileInputStream(inputFileDescriptor)) {
+            var row = readNext()
+            var currentAccountId = 0L
+            while (row != null) {
+                if (row == accountHeaderRow) {
+                    // account
+                    val accountRow = readNext()!!
+                    val accountMap = accountHeaderRow.zip(accountRow).toMap()
+                    val account = Account(
+                        name = accountMap[accountHeaderName]
+                            ?: error("Missing $accountHeaderName"),
+                        notes = accountMap[accountHeaderNotes]
+                            ?: error("Missing $accountHeaderNotes"),
+                        accountType = Account.AccountType.valueOf(
+                            accountMap[accountHeaderType] ?: error("Missing $accountHeaderType")
+                        )
+                    )
+
+                    runBlocking {
+                        currentAccountId = withContext(Dispatchers.Default) {
+                            repository.addAccount(account)
                         }
+                    }
+                } else if (row[0] == "") {
+                    // end of AccountWithTransactions
+                    row = readNext()
+                    continue
+                } else if (row == transactionHeaderRow) {
+                    row = readNext()
+                    continue
+                } else {
+                    // transactions
+                    val transactionRow = row
+                    val transactionsMap = transactionHeaderRow.zip(transactionRow).toMap()
+                    val transaction = Transaction(
+                        name = transactionsMap[transactionHeaderName]
+                            ?: error("Missing $transactionHeaderName"),
+                        forAccountId = currentAccountId,
+                        amount = transactionsMap[transactionHeaderAmount]?.toDouble()
+                            ?: error("Missing $transactionHeaderAmount"),
+                        date = try {
+                            LocalDateTime.parse(transactionsMap[transactionHeaderDate])
+                        } catch (e: RuntimeException) {
+                            error("Missing $transactionHeaderDate")
+                        },
+                        notes = transactionsMap[transactionHeaderNotes]
+                            ?: error("Missing $transactionHeaderNotes"),
+                        media = ""
+                    )
+
+                    runBlocking {
+                        repository.addTransaction(transaction)
                     }
                 }
 
-                dataState.postValue(DataState.Success(SUCCESS_MESSAGE))
-            } catch (e: RuntimeException) {
-                dataState.postValue(DataState.Failed(e))
-            } finally {
-                reader.close()
+                row = readNext()
             }
-        }
-
-    private fun parseSembast(json: String): AccountWithTransactions {
-        return try {
-            val sembastJsonAccount = JSONObject(json).getJSONObject("value")
-            val account = Account.fromJson(sembastJsonAccount)
-            val transactions = mutableListOf<Transaction>()
-            val jsonTransactions =
-                sembastJsonAccount.getJSONArray("transactions")
-
-            for (i in 0 until jsonTransactions.length()) {
-                val transaction = Transaction.fromJson(
-                    jsonTransactions.getJSONObject(i),
-                    0
-                )
-
-                transactions.add(transaction)
-            }
-
-            AccountWithTransactions(account, transactions)
-        } catch (e: JSONException) {
-            throw RuntimeException(e)
         }
     }
 
-    fun export(outputFileDescriptor: FileDescriptor, context: Context? = null) =
+
+    private suspend fun importSembast(inputFileDescriptor: FileDescriptor) = coroutineScope {
+        val reader = FileReader(inputFileDescriptor).buffered()
+        val allAccountsWithTransactions: MutableMap<Account, List<Transaction>> = mutableMapOf()
+        val jobs = mutableListOf<Job>()
+        reader.forEachLine { json ->
+            val jsonArray = JSONArray(json)
+
+            for (i in 0 until jsonArray.length()) {
+                val jsonSembastAccount = jsonArray.getJSONObject(i)
+                val accountWithTransactions = parseSembast(jsonSembastAccount)
+
+                val currentTransactions = allAccountsWithTransactions[accountWithTransactions.first]
+                if (currentTransactions != null) {
+                    val mergedTransactions =
+                        (accountWithTransactions.second + currentTransactions).distinctBy {
+                            listOf(it.name, it.amount, it.forAccountId, it.notes, it.media, it.date)
+                        }.toMutableList()
+
+                    val startingBalanceTransactions = mergedTransactions.filter {
+                        it.name == "Starting Balance" && it.notes == "Imported initial Transaction"
+                    }
+
+                    if (startingBalanceTransactions.size > 1) {
+                        startingBalanceTransactions.takeLast(startingBalanceTransactions.size - 1)
+                            .forEach {
+                                mergedTransactions.remove(it)
+                            }
+                    }
+
+
+                    allAccountsWithTransactions.replace(
+                        accountWithTransactions.first,
+                        mergedTransactions
+                    )
+                } else {
+                    allAccountsWithTransactions[accountWithTransactions.first] =
+                        accountWithTransactions.second
+                }
+            }
+
+            allAccountsWithTransactions.forEach { currentAccountWithTransactions ->
+                jobs.add(launch {
+                    val accountId = async(Dispatchers.IO) {
+                        repository.addAccount(currentAccountWithTransactions.key)
+                    }
+
+                    val transactions = currentAccountWithTransactions.value.toMutableList()
+//                    val startingBalance = transactions.sumOf {
+//                        it.amount
+//                    }
+
+//                    val originalStartingBalance = transactions.find {
+//                        it.name == "Starting Balance" &&
+//                                it.notes == "Imported initial Transaction"
+//                    }
+
+//                    transactions.add(
+//                        Transaction(
+//                            name = "Starting Balance",
+//                            notes = "Imported initial Transaction",
+//                            amount = startingBalance,
+//                            forAccountId = 0,
+//                            media = "",
+//                            date = LocalDateTime.now()
+//                        )
+//                    )
+
+                    transactions.forEach {
+                        repository.addTransaction(it.copy(forAccountId = accountId.await()))
+                    }
+                })
+            }
+
+        }
+
+        jobs.joinAll()
+    }
+
+    private fun parseSembast(json: JSONObject): Pair<Account, List<Transaction>> {
+        val sembastJsonAccount = json.getJSONObject("value")
+        val accountWithBalance = Account.fromJsonSembast(sembastJsonAccount)
+        val transactions = mutableListOf<Transaction>()
+        val jsonTransactions =
+            sembastJsonAccount.getJSONArray("transactions")
+
+        for (i in 0 until jsonTransactions.length()) {
+            val transaction = Transaction.fromJsonSembast(
+                jsonTransactions.getJSONObject(i)
+            )
+
+            transactions.add(transaction)
+        }
+
+        val startingBalance = transactions.sumOf {
+            it.amount
+        }
+
+        transactions.add(
+            Transaction(
+                name = "Starting Balance",
+                notes = "Imported initial Transaction",
+                amount = accountWithBalance.second - startingBalance,
+                forAccountId = accountWithBalance.first.accountId,
+                media = "",
+                date = LocalDateTime.now()
+            )
+        )
+
+        return accountWithBalance.first to transactions
+    }
+
+    fun export(outputFileDescriptor: FileDescriptor, context: Context) =
         viewModelScope.launch(Dispatchers.IO) {
+            repository.checkpoint()
             dataState.postValue(DataState.Loading)
 
             when (currentDataFormat) {
-                DataFormat.SQL -> {
-                    val databaseFile: File =
-                        context!!.getDatabasePath(context.getString(com.lacaprjc.expended.R.string.database_name))
-                    exportToSql(outputFileDescriptor, databaseFile)
-                }
                 DataFormat.JSON -> {
                     exportToJson(outputFileDescriptor)
                 }
-                DataFormat.CSV -> TODO()
-                DataFormat.SEMBAST -> TODO()
+                DataFormat.CSV -> exportToCsv(outputFileDescriptor)
+                else -> {
+                }
             }
 
-            dataState.postValue(DataState.Success("Exported database!"))
+            dataState.postValue(DataState.Success("Exported ${currentDataFormat.name}"))
         }
 
-    private fun exportToSql(outputFileDescriptor: FileDescriptor, databaseFile: File) {
-        var fileInputChannel: FileChannel? = null
-        var fileOutputChannel: FileChannel? = null
+    private fun exportToCsv(outputFileDescriptor: FileDescriptor) =
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val allAccountWithTransactions =
+                    repository.getAllAccountsWithTransactionsSync()
+                val allRows = mutableListOf<List<String>>()
 
-        try {
-            fileInputChannel = FileInputStream(databaseFile).channel
-            fileOutputChannel = FileOutputStream(outputFileDescriptor).channel
-            fileOutputChannel!!.transferFrom(
-                fileInputChannel,
-                0,
-                fileInputChannel!!.size()
-            )
-        } catch (e: RuntimeException) {
-            dataState.postValue(DataState.Failed(e))
-        } finally {
-            fileInputChannel?.close()
-            fileOutputChannel?.close()
+                allAccountWithTransactions.forEach { currentAccountWithTransactions ->
+                    val transactionsRows = mutableListOf<List<String>>()
+                    var accountBalance = 0.0
+                    currentAccountWithTransactions.transactions.forEach { currentTransaction ->
+                        transactionsRows.add(currentTransaction.toCsvRow())
+                        accountBalance += currentTransaction.amount
+                    }
+
+                    allRows.add(accountHeaderRow)
+                    val accountRow =
+                        currentAccountWithTransactions.account.toCsvRow()
+                            .toMutableList().apply {
+                                add(accountBalance.toString())
+                            }
+                    allRows.add(accountRow)
+                    allRows.add(transactionHeaderRow)
+                    transactionsRows.forEach {
+                        allRows.add(it)
+                    }
+
+                    // blank line
+                    allRows.add(listOf())
+                }
+
+                CsvWriter().writeAll(
+                    allRows,
+                    FileOutputStream(outputFileDescriptor)
+                )
+            } catch (e: RuntimeException) {
+                dataState.postValue(DataState.Failed(e))
+            }
         }
-    }
 
     private fun exportToJson(outputFileDescriptor: FileDescriptor) =
         viewModelScope.launch(Dispatchers.IO) {
             var bufferedWriter: BufferedWriter? = null
 
             try {
-                val allAccountWithTransactions = repository.getAllAccountsWithTransactionsSync()
+                val allAccountWithTransactions =
+                    repository.getAllAccountsWithTransactionsSync()
 
                 val jsonArray = JSONArray()
                 allAccountWithTransactions.forEach { currentAccountWithTransactions ->
                     jsonArray.put(currentAccountWithTransactions.toJson())
                 }
 
-                bufferedWriter = BufferedWriter(FileWriter(outputFileDescriptor)).apply {
-                    write(jsonArray.toString())
-                    close()
-                }
+                bufferedWriter =
+                    BufferedWriter(FileWriter(outputFileDescriptor)).apply {
+                        write(jsonArray.toString())
+                        close()
+                    }
 
-
-            } catch (e: RuntimeException) {
-                dataState.postValue(DataState.Failed(e))
             } finally {
                 bufferedWriter?.close()
             }
