@@ -81,6 +81,20 @@
                 app:layout_constraintTop_toBottomOf="@id/exportButton"
                 app:rippleColor="@color/transparent" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/deleteAllButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:padding="0dp"
+                android:text="@string/delete_all_button_text"
+                android:textAlignment="textStart"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                app:layout_constraintEnd_toEndOf="@id/importButton"
+                app:layout_constraintStart_toStartOf="@id/importButton"
+                app:layout_constraintTop_toBottomOf="@id/importButton"
+                app:rippleColor="@color/transparent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>

@@ -47,6 +47,7 @@ class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
         )
+
         val recyclerView = binding.transactionsRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = transactionAdapter
@@ -80,6 +81,7 @@ class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_
                     0,
                     0
                 )
+
                 binding.accountBalanceCard.setCardBackgroundColor(accountColor)
                 binding.accountBalanceCard.accountName.text = accountWithTransactions.account.name
                 binding.accountBalanceCard.accountBalance.text =

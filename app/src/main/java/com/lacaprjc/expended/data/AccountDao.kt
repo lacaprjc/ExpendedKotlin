@@ -57,4 +57,15 @@ interface AccountDao {
 
     @RawQuery
     suspend fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
+
+    @Query("DELETE FROM Account")
+    suspend fun deleteAllAccounts()
+
+    @Query("DELETE FROM `Transaction`")
+    suspend fun deleteAllTransactions()
+
+    suspend fun deleteAllAccountsAndTransactions() {
+        deleteAllAccounts()
+        deleteAllTransactions()
+    }
 }

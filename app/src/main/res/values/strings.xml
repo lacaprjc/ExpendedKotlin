@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">New Expended</string>
+    <string name="app_name">Expended</string>
     <string name="title_home">Accounts</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
@@ -20,4 +20,5 @@
     <string name="settings_toolbar_text">Settings</string>
 
     <string name="database_name">accounts.db</string>
+    <string name="delete_all_button_text">Delete All Accounts and Transactions</string>
 </resources>

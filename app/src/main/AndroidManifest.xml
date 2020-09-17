@@ -15,6 +15,10 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
 
+        <uses-library
+            android:name="android.test.runner"
+            android:required="false" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.lacaprjc.expended.fileprovider"

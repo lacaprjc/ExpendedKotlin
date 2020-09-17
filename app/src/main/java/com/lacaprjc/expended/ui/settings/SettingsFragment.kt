@@ -42,6 +42,20 @@ class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
         binding.settingsToolbar.pageTitle.text = getString(R.string.settings_toolbar_text)
 
+        binding.deleteAllButton.setOnClickListener {
+            MaterialAlertDialogBuilder(it.context)
+                .setTitle("Delete Everything")
+                .setMessage("Are you sure you want to delete everything? There is no going back from this operation so please make sure to backup your accounts beforehand.")
+                .setPositiveButton("Delete") { dialog, _ ->
+                    settingsViewModel.deleteAll()
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.cancel()
+                }
+                .show()
+        }
+
         binding.exportButton.setOnClickListener {
             MaterialAlertDialogBuilder(it.context)
                 .setTitle("Export Format")

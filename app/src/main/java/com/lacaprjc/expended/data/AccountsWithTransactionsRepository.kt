@@ -28,6 +28,8 @@ class AccountsWithTransactionsRepository constructor(private val dao: AccountDao
 
     suspend fun deleteTransaction(transaction: Transaction) = dao.deleteTransaction(transaction)
 
+    suspend fun deleteAll() = dao.deleteAllAccountsAndTransactions()
+
     fun checkpoint() = runBlocking {
         dao.checkpoint(SimpleSQLiteQuery("pragma wal_checkpoint(full)"))
     }

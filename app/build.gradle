@@ -10,6 +10,10 @@ plugins {
 apply from: '../dependencies.gradle'
 
 android {
+    signingConfigs {
+        release {
+        }
+    }
     compileSdkVersion versions.compileSdk
     buildToolsVersion "30.0.0"
 
@@ -32,6 +36,7 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 
@@ -52,6 +57,16 @@ android {
     lintOptions {
         disable 'NewApi'
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
+    useLibrary 'android.test.runner'
+    useLibrary 'android.test.base'
+    useLibrary 'android.test.mock'
 }
 
 dependencies {
@@ -63,12 +78,14 @@ dependencies {
     implementation "com.google.android.material:material:$versions.materialVersion"
     implementation "androidx.constraintlayout:constraintlayout:$versions.constraintVersion"
 
+    // fragment and navigation
     implementation "androidx.navigation:navigation-fragment:$versions.fragmentVersion"
     implementation "androidx.navigation:navigation-fragment-ktx:$versions.fragmentVersion"
     implementation "androidx.navigation:navigation-ui:$versions.navVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$versions.navVersion"
     implementation "androidx.navigation:navigation-runtime-ktx:$versions.navVersion"
 
+    // lifecycle, livedata, viewmodel
     implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$versions.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$versions.lifecycleVersion"
@@ -94,12 +111,17 @@ dependencies {
     /*
      * Unit Tests
      */
-    testImplementation 'junit:junit:4.13'
+    testImplementation "junit:junit:$versions.junitVersion"
+    testImplementation "androidx.arch.core:core-testing:$versions.androidXArchTesting"
     testImplementation "androidx.room:room-testing:$versions.roomVersion"
+    testImplementation "org.mockito:mockito-inline:$versions.mockitoInlineVersion"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$versions.mockitoKotlinVersion"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$versions.coroutinesVersion"
 
     /*
     * Instrumented Tests
     * */
     androidTestImplementation "androidx.test.ext:junit:$versions.androidxTestVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$versions.espressoVersion"
+
 }

@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.github.doyaaaaaken.kotlincsv.client.CsvReader
 import com.github.doyaaaaaken.kotlincsv.client.CsvWriter
 import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
+import com.lacaprjc.expended.di.IoDispatcher
 import com.lacaprjc.expended.ui.model.Account
 import com.lacaprjc.expended.ui.model.AccountWithTransactions
 import com.lacaprjc.expended.ui.model.Transaction
@@ -18,6 +19,7 @@ import com.lacaprjc.expended.util.DataFormat
 import com.lacaprjc.expended.util.DataState
 import com.lacaprjc.expended.util.toCsvRow
 import com.lacaprjc.expended.util.toJson
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,7 +32,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.BufferedReader
 import java.io.BufferedWriter
 import java.io.FileDescriptor
 import java.io.FileInputStream
@@ -42,12 +43,11 @@ import java.time.LocalDateTime
 @ExperimentalCoroutinesApi
 class SettingsViewModel @ViewModelInject constructor(
     private val repository: AccountsWithTransactionsRepository,
+    @IoDispatcher private val defaultDispatcher: CoroutineDispatcher,
     @Assisted savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     companion object {
-        const val SUCCESS_MESSAGE = "Successfully imported accounts."
-
         private const val accountHeaderName = "Account Name"
         private const val accountHeaderId = "Account ID"
         private const val accountHeaderType = "Type"
@@ -90,23 +90,23 @@ class SettingsViewModel @ViewModelInject constructor(
 
     fun getDataState(): LiveData<DataState<Any>> = dataState
 
-    private suspend fun importAccountWithTransactions(accountWithTransactions: AccountWithTransactions) =
-        coroutineScope {
-            val accountId = async {
-                repository.addAccount(accountWithTransactions.account)
-            }
-
-            accountWithTransactions.transactions.forEach {
-                repository.addTransaction(it.copy(forAccountId = accountId.await()))
-            }
-        }
+//    private suspend fun importAccountWithTransactions(accountWithTransactions: AccountWithTransactions) =
+//        coroutineScope {
+//            val accountId = async {
+//                repository.addAccount(accountWithTransactions.account)
+//            }
+//
+//            accountWithTransactions.transactions.forEach {
+//                repository.addTransaction(it.copy(forAccountId = accountId.await()))
+//            }
+//        }
 
     fun setDataState(dataState: DataState<Any>) {
         this.dataState.postValue(dataState)
     }
 
     fun import(inputFileDescriptor: FileDescriptor) =
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(defaultDispatcher) {
             dataState.postValue(DataState.Loading)
 
             val job = Job()
@@ -122,7 +122,7 @@ class SettingsViewModel @ViewModelInject constructor(
                 throwable.printStackTrace()
             }) {
                 when (currentDataFormat) {
-                    DataFormat.JSON -> importJson(FileReader(inputFileDescriptor).buffered())
+                    DataFormat.JSON -> importJson(inputFileDescriptor)
                     DataFormat.CSV -> importCsv(inputFileDescriptor)
                     DataFormat.SEMBAST -> importSembast(inputFileDescriptor)
                 }
@@ -137,7 +137,8 @@ class SettingsViewModel @ViewModelInject constructor(
             job.join()
         }
 
-    private suspend fun importJson(reader: BufferedReader) = coroutineScope {
+    private suspend fun importJson(inputFileDescriptor: FileDescriptor) = coroutineScope {
+        val reader = FileReader(inputFileDescriptor).buffered()
         val jobs = mutableListOf<Job>()
         reader.forEachLine {
             val allAccountsWithTransactionsAsJson = JSONArray(it)
@@ -267,7 +268,7 @@ class SettingsViewModel @ViewModelInject constructor(
 
             allAccountsWithTransactions.forEach { currentAccountWithTransactions ->
                 jobs.add(launch {
-                    val accountId = async(Dispatchers.IO) {
+                    val accountId = async(defaultDispatcher) {
                         repository.addAccount(currentAccountWithTransactions.key)
                     }
 
@@ -337,7 +338,7 @@ class SettingsViewModel @ViewModelInject constructor(
     }
 
     fun export(outputFileDescriptor: FileDescriptor, context: Context) =
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(defaultDispatcher) {
             repository.checkpoint()
             dataState.postValue(DataState.Loading)
 
@@ -354,7 +355,7 @@ class SettingsViewModel @ViewModelInject constructor(
         }
 
     private fun exportToCsv(outputFileDescriptor: FileDescriptor) =
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(defaultDispatcher) {
             try {
                 val allAccountWithTransactions =
                     repository.getAllAccountsWithTransactionsSync()
@@ -394,7 +395,7 @@ class SettingsViewModel @ViewModelInject constructor(
         }
 
     private fun exportToJson(outputFileDescriptor: FileDescriptor) =
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(defaultDispatcher) {
             var bufferedWriter: BufferedWriter? = null
 
             try {
@@ -416,4 +417,10 @@ class SettingsViewModel @ViewModelInject constructor(
                 bufferedWriter?.close()
             }
         }
+
+    fun deleteAll() = viewModelScope.launch(defaultDispatcher) {
+        dataState.postValue(DataState.Loading)
+        repository.deleteAll()
+        dataState.postValue(DataState.Success("Successfully deleted ALL Accounts and Transactions"))
+    }
 }
