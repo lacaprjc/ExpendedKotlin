@@ -4,47 +4,54 @@ object Versions {
     const val kotlin = "1.4.10"
     const val safeArgs = "2.3.1"
     const val hiltPlugin = "2.29.1-alpha"
+    const val googleServices = "4.3.4"
 
     //libs
-    val coreKtx = "1.2.0"
-    val appcompat = "1.2.0"
-    val constraintLayout = "2.0.0-beta8"
-    val material = "1.2.1"
+    const val coreKtx = "1.2.0"
+    const val appcompat = "1.2.0"
+    const val constraintLayout = "2.0.0-beta8"
+    const val material = "1.2.1"
 
     private const val navVersion = "2.3.1"
-    val fragmentKtx = navVersion
-    val uiKtx = navVersion
-    val runtimeKtx = navVersion
+    const val fragmentKtx = navVersion
+    const val uiKtx = navVersion
+    const val runtimeKtx = navVersion
 
     private const val lifecycleVersion = "2.2.0"
-    val lifecycleExt = lifecycleVersion
-    val lifecycleRuntimeKtx = lifecycleVersion
-    val liveDataKtx = lifecycleVersion
-    val viewmodelKtx = lifecycleVersion
+    const val lifecycleExt = lifecycleVersion
+    const val lifecycleRuntimeKtx = lifecycleVersion
+    const val liveDataKtx = lifecycleVersion
+    const val viewModelKtx = lifecycleVersion
 
-    val hiltAndroid = "2.29.1-alpha"
-    val hiltAndroidCompiler = "1.0.0-alpha02"
-    val hiltViewModel = "1.0.0-alpha02"
-    val hiltCompiler = "2.29.1-alpha"
+    const val hiltAndroid = "2.29.1-alpha"
+    const val hiltAndroidCompiler = "1.0.0-alpha02"
+    const val hiltViewModel = "1.0.0-alpha02"
+    const val hiltCompiler = "2.29.1-alpha"
 
-    val jdkDesugar = "1.0.10"
+    const val firebase = "25.12.0"
+    const val firebaseCrashlytics = "2.3.0"
+    const val firebasePerformance = "1.3.2"
+
+    const val jdkDesugar = "1.0.10"
 
     private const val roomVersion = "2.2.5"
-    val roomRuntime = roomVersion
-    val roomKtx = roomVersion
-    val roomCompiler = roomVersion
+    const val roomRuntime = roomVersion
+    const val roomKtx = roomVersion
+    const val roomCompiler = roomVersion
 
-    val kotlinCsv = "0.11.1"
+    const val kotlinCsv = "0.11.1"
+
+    const val leakCanary = "2.5"
 
     // local test
-    val junit = "4.13"
-    val archCore = "2.1.0"
-    val roomTest = roomVersion
-    val mockitoInline = "3.3.3"
-    val mockitoKotlin = "2.2.0"
-    val coroutinesTest = "1.3.9"
+    const val junit = "4.13"
+    const val archCore = "2.1.0"
+    const val roomTest = roomVersion
+    const val mockitoInline = "3.3.3"
+    const val mockitoKotlin = "2.2.0"
+    const val coroutinesTest = "1.3.9"
 
     // instrumented tests
-    val extJunit = "1.1.2"
-    val espressoCore = "3.3.0"
+    const val extJunit = "1.1.2"
+    const val espressoCore = "3.3.0"
 }

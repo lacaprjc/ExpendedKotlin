@@ -7,17 +7,19 @@ object Dependencies {
     private val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
     private val fragmentWithKtx = "androidx.navigation:navigation-fragment-ktx:${Versions.fragmentKtx}"
     private val uiKtx = "androidx.navigation:navigation-ui-ktx:${Versions.uiKtx}"
+    private val runtimeKtx = "androidx.navigation:navigation-runtime-ktx:${Versions.runtimeKtx}"
     private val lifeCycleExtensions = "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycleExt}"
     private val lifeCycleRuntimeKtx = "androidx.lifecycle:lifecycle-runtime:${Versions.lifecycleRuntimeKtx}"
     private val liveDataKtx = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.liveDataKtx}"
-    private val viewModelKtx = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.viewmodelKtx}"
+    private val viewModelKtx = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.viewModelKtx}"
     private val hiltAndroid = "com.google.dagger:hilt-android:${Versions.hiltAndroid}"
     private val hiltViewModel = "androidx.hilt:hilt-lifecycle-viewmodel:${Versions.hiltViewModel}"
     private val roomRuntime = "androidx.room:room-runtime:${Versions.roomRuntime}"
     private val roomKtx = "androidx.room:room-ktx:${Versions.roomKtx}"
     private val kotlinCsv = "com.github.doyaaaaaken:kotlin-csv-jvm:${Versions.kotlinCsv}"
-
-    val jdkDesugar = "com.android.tools:desugar_jdk_libs:${Versions.jdkDesugar}"
+    private const val firebaseAnalytics = "com.google.firebase:firebase-analytics-ktx"
+    private const val firebaseCrashlytics = "com.google.firebase:firebase-crashlytics-ktx"
+    private const val firebasePerformance = "com.google.firebase:firebase-perf-ktx"
 
     val appLibraries = arrayListOf(
         coreKtx,
@@ -26,16 +28,19 @@ object Dependencies {
         constraintLayout,
         fragmentWithKtx,
         uiKtx,
+        runtimeKtx,
         lifeCycleExtensions,
         lifeCycleRuntimeKtx,
         liveDataKtx,
         viewModelKtx,
         hiltAndroid,
         hiltViewModel,
-        jdkDesugar,
         roomKtx,
         roomRuntime,
-        kotlinCsv
+        kotlinCsv,
+        firebaseAnalytics,
+        firebaseCrashlytics,
+        firebasePerformance
     )
 
     private val hiltCompiler = "com.google.dagger:hilt-compiler:${Versions.hiltCompiler}"
@@ -71,6 +76,16 @@ object Dependencies {
         junitExt,
         espressoCore
     )
+
+    val jdkDesugar = "com.android.tools:desugar_jdk_libs:${Versions.jdkDesugar}"
+
+    private val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
+
+    val debugAppLibraries = arrayListOf(
+        leakCanary
+    )
+
+    val firebaseBom = "com.google.firebase:firebase-bom:${Versions.firebase}"
 }
 
 //util functions for adding the different type dependencies from build.gradle file
@@ -80,9 +95,21 @@ fun DependencyHandler.kapt(list: List<String>) {
     }
 }
 
+fun DependencyHandler.platformImplementation(list: List<String>) {
+    list.forEach { dependency ->
+        add("implementation platform", dependency)
+    }
+}
+
 fun DependencyHandler.implementation(list: List<String>) {
     list.forEach { dependency ->
         add("implementation", dependency)
+    }
+}
+
+fun DependencyHandler.debugImplementation(list: List<String>) {
+    list.forEach { dependency ->
+        add("debugImplementation", dependency)
     }
 }
 

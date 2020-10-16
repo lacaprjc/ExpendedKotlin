@@ -1,6 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("com.android.application")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
+    id("com.google.firebase.firebase-perf")
 }
 
 apply(plugin = "kotlin-android")
@@ -8,7 +12,6 @@ apply(plugin = "kotlin-android-extensions")
 apply(plugin = "org.jetbrains.kotlin.kapt")
 apply(plugin = "androidx.navigation.safeargs.kotlin")
 apply(plugin = "dagger.hilt.android.plugin")
-
 
 android {
     compileSdkVersion(AppConfig.compileSdk)
@@ -75,7 +78,9 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
+    implementation(platform(Dependencies.firebaseBom))
     implementation(Dependencies.appLibraries)
+    debugImplementation(Dependencies.debugAppLibraries)
     coreLibraryDesugaring(Dependencies.jdkDesugar)
     kapt(Dependencies.kaptLibraries)
     testImplementation(Dependencies.localTestLibraries)
