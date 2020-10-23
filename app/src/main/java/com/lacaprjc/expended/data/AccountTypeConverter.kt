@@ -1,7 +1,7 @@
 package com.lacaprjc.expended.data
 
 import androidx.room.TypeConverter
-import com.lacaprjc.expended.ui.model.Account
+import com.lacaprjc.expended.model.Account
 
 class AccountTypeConverter {
     @TypeConverter

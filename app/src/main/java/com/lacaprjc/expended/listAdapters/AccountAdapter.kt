@@ -8,31 +8,33 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.lacaprjc.expended.databinding.AccountItemBinding
-import com.lacaprjc.expended.ui.model.Account
+import com.lacaprjc.expended.model.Account
+import com.lacaprjc.expended.model.AccountWithBalance
 import com.lacaprjc.expended.util.getAssociatedColor
 import com.lacaprjc.expended.util.getAssociatedIcon
 import com.lacaprjc.expended.util.toStringWithDecimalPlaces
+import java.util.*
 
 class AccountAdapter(
-    private val onClickListener: ((Account) -> Unit)? = null,
-    private val onLongClickListener: ((Account, Double) -> Unit)? = null
+    private val onClickListener: ((Account) -> Unit)? = null
 ) : RecyclerView.Adapter<AccountAdapter.ViewHolder>() {
 
     companion object {
-        val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Account>() {
-            override fun areItemsTheSame(oldItem: Account, newItem: Account): Boolean =
-                oldItem.accountId == newItem.accountId
+        val DIFF_CALLBACK = object : DiffUtil.ItemCallback<AccountWithBalance>() {
+            override fun areItemsTheSame(oldItem: AccountWithBalance, newItem: AccountWithBalance): Boolean =
+                oldItem.account.accountId == newItem.account.accountId
 
-            override fun areContentsTheSame(oldItem: Account, newItem: Account): Boolean =
-                oldItem.name == newItem.name
-                        && oldItem.accountType == newItem.accountType
-                        && oldItem.notes == newItem.notes
+            override fun areContentsTheSame(oldItem: AccountWithBalance, newItem: AccountWithBalance) =
+                oldItem.account.name == newItem.account.name
+                        && oldItem.account.orderPosition == newItem.account.orderPosition
+                        && oldItem.account.accountType == newItem.account.accountType
+                        && oldItem.account.notes == newItem.account.notes
+                        && oldItem.balance == newItem.balance
 
         }
     }
 
-    private val differ: AsyncListDiffer<Account> = AsyncListDiffer(this, DIFF_CALLBACK)
-    private var balances = emptyList<Double>()
+    private val differ: AsyncListDiffer<AccountWithBalance> = AsyncListDiffer(this, DIFF_CALLBACK)
 
     class ViewHolder(val binding: AccountItemBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -45,7 +47,8 @@ class AccountAdapter(
     )
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val account: Account = differ.currentList[position]
+        val currentAccountWithBalance = differ.currentList[position]
+        val account: Account = currentAccountWithBalance.account
         val accountIcon = account.accountType.getAssociatedIcon()
         val accountColor = ContextCompat.getColor(
             holder.binding.root.context,
@@ -65,7 +68,7 @@ class AccountAdapter(
         }
 
         with(holder.binding.accountBalance) {
-            text = "$ ${balances[position].toStringWithDecimalPlaces(2)}"
+            text = "$ ${currentAccountWithBalance.balance.toStringWithDecimalPlaces(2)}"
             setTextColor(accountColor)
         }
 
@@ -75,23 +78,17 @@ class AccountAdapter(
                 it(account)
             }
         }
-        holder.binding.root.setOnLongClickListener {
-            onLongClickListener?.let {
-                try {
-                    // position may be out of bounds if just deleted an account
-                    it(account, balances[position])
-                } catch (e: IndexOutOfBoundsException) {
-                    e.printStackTrace()
-                }
-            }
-            true
-        }
     }
 
     override fun getItemCount(): Int = differ.currentList.size
 
-    fun submitAccounts(accounts: List<Account>, balances: List<Double>) {
-        this.balances = balances
+    fun moveItem(from: Int, to: Int) {
+        val currentList: MutableList<AccountWithBalance> = differ.currentList.toMutableList()
+        Collections.swap(currentList, from, to)
+        submitAccounts(currentList)
+    }
+
+    fun submitAccounts(accounts: List<AccountWithBalance>) {
         differ.submitList(accounts)
     }
 }

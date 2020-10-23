@@ -5,6 +5,7 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
     id("com.google.firebase.firebase-perf")
+    id("com.github.ben-manes.versions") version "0.33.0"
 }
 
 apply(plugin = "kotlin-android")
@@ -26,6 +27,12 @@ android {
         vectorDrawables.useSupportLibrary = true
 
         testInstrumentationRunner = AppConfig.androidTestImplementation
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments.putIfAbsent("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
     }
 
 //    signingConfigs {
@@ -33,6 +40,9 @@ android {
 //
 //        }
 //    }
+    sourceSets {
+        getByName("androidTest").assets.srcDirs(files("$projectDir/schemas"))
+    }
 
     buildTypes {
         getByName("debug") {
@@ -87,6 +97,11 @@ dependencies {
     androidTestImplementation(Dependencies.instrumentedTestLibraries)
 }
 
-tasks.withType<KotlinCompile> {
+tasks.withType<KotlinCompile>().all {
     kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.freeCompilerArgs += listOf(
+        "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
+        "-Xopt-in=kotlin.RequiresOptIn",
+        "-Xopt-in=kotlin.OptIn"
+    )
 }

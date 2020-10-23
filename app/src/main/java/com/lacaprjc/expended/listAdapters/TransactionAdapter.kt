@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.lacaprjc.expended.databinding.TransactionItemBinding
-import com.lacaprjc.expended.ui.model.Transaction
+import com.lacaprjc.expended.model.Transaction
 import com.lacaprjc.expended.util.toStringWithDecimalPlaces
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

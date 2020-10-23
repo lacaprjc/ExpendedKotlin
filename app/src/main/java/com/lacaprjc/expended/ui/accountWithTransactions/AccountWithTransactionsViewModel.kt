@@ -2,21 +2,21 @@ package com.lacaprjc.expended.ui.accountWithTransactions
 
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
-import com.lacaprjc.expended.ui.model.AccountWithTransactions
+import com.lacaprjc.expended.model.AccountWithTransactions
+import kotlinx.coroutines.flow.Flow
 
 class AccountWithTransactionsViewModel @ViewModelInject constructor(
     private val repository: AccountsWithTransactionsRepository,
     @Assisted savedStateHandle: SavedStateHandle
 ) :
     ViewModel() {
-    fun getAccountWithTransactions(accountId: Long): LiveData<AccountWithTransactions> =
+    fun getAccountWithTransactions(accountId: Long): Flow<AccountWithTransactions> =
         repository.getAccountWithTransactions(accountId)
 
-    fun getAllAccountsWithTransactions(): LiveData<List<AccountWithTransactions>> =
+    fun getAllAccountsWithTransactions(): Flow<List<AccountWithTransactions>> =
         repository.getAllAccountsWithTransactions()
 
 }

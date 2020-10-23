@@ -1,16 +1,19 @@
 package com.lacaprjc.expended.data
 
 import androidx.sqlite.db.SimpleSQLiteQuery
-import com.lacaprjc.expended.ui.model.Account
-import com.lacaprjc.expended.ui.model.Transaction
+import com.lacaprjc.expended.model.Account
+import com.lacaprjc.expended.model.AccountWithTransactions
+import com.lacaprjc.expended.model.Transaction
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.runBlocking
 
-class AccountsWithTransactionsRepository constructor(private val dao: AccountDao) {
+class AccountsWithTransactionsRepository constructor(private val dao: AccountsWithTransactionsDao) {
     fun getAllAccounts() = dao.getAllAccounts()
 
     fun getAccountWithTransactions(accountId: Long) = dao.getAccountWithTransactions(accountId)
 
-    fun getAllAccountsWithTransactions() = dao.getAllAccountsWithTransactions()
+    fun getAllAccountsWithTransactions(): Flow<List<AccountWithTransactions>> =
+        dao.getAllAccountsWithTransactions()
 
     suspend fun getAllAccountsWithTransactionsSync() = dao.getAllAccountsWithTransactionsSync()
 

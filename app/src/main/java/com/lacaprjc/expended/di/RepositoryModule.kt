@@ -1,6 +1,6 @@
 package com.lacaprjc.expended.di
 
-import com.lacaprjc.expended.data.AccountDao
+import com.lacaprjc.expended.data.AccountsWithTransactionsDao
 import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
 import dagger.Module
 import dagger.Provides
@@ -14,5 +14,5 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideAccountsWithTransacationsRepository(accountDao: AccountDao) = AccountsWithTransactionsRepository(accountDao)
+    fun provideAccountsWithTransacationsRepository(accountsWithTransactionsDao: AccountsWithTransactionsDao) = AccountsWithTransactionsRepository(accountsWithTransactionsDao)
 }

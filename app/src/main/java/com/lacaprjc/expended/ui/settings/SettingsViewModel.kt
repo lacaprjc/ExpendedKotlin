@@ -12,9 +12,9 @@ import com.github.doyaaaaaken.kotlincsv.client.CsvReader
 import com.github.doyaaaaaken.kotlincsv.client.CsvWriter
 import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
 import com.lacaprjc.expended.di.IoDispatcher
-import com.lacaprjc.expended.ui.model.Account
-import com.lacaprjc.expended.ui.model.AccountWithTransactions
-import com.lacaprjc.expended.ui.model.Transaction
+import com.lacaprjc.expended.model.Account
+import com.lacaprjc.expended.model.AccountWithTransactions
+import com.lacaprjc.expended.model.Transaction
 import com.lacaprjc.expended.util.DataFormat
 import com.lacaprjc.expended.util.DataState
 import com.lacaprjc.expended.util.toCsvRow
@@ -53,13 +53,15 @@ class SettingsViewModel @ViewModelInject constructor(
         private const val accountHeaderType = "Type"
         private const val accountHeaderNotes = "Notes"
         private const val accountHeaderBalance = "Balance"
+        private const val accountHeaderOrderPosition = "OrderPosition"
         val accountHeaderRow =
             listOf(
                 accountHeaderName,
                 accountHeaderId,
                 accountHeaderType,
                 accountHeaderNotes,
-                accountHeaderBalance
+                accountHeaderBalance,
+                accountHeaderOrderPosition
             )
 
         private const val transactionHeaderName = "Transaction Name"
@@ -180,7 +182,8 @@ class SettingsViewModel @ViewModelInject constructor(
                             ?: error("Missing $accountHeaderNotes"),
                         accountType = Account.AccountType.valueOf(
                             accountMap[accountHeaderType] ?: error("Missing $accountHeaderType")
-                        )
+                        ),
+                        orderPosition = (accountMap[accountHeaderOrderPosition] as Int?) ?: -1
                     )
 
                     runBlocking {

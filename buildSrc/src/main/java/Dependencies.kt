@@ -17,6 +17,8 @@ object Dependencies {
     private val roomRuntime = "androidx.room:room-runtime:${Versions.roomRuntime}"
     private val roomKtx = "androidx.room:room-ktx:${Versions.roomKtx}"
     private val kotlinCsv = "com.github.doyaaaaaken:kotlin-csv-jvm:${Versions.kotlinCsv}"
+    private val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutinesCore}"
+    private val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutinesAndroid}"
     private const val firebaseAnalytics = "com.google.firebase:firebase-analytics-ktx"
     private const val firebaseCrashlytics = "com.google.firebase:firebase-crashlytics-ktx"
     private const val firebasePerformance = "com.google.firebase:firebase-perf-ktx"
@@ -40,7 +42,9 @@ object Dependencies {
         kotlinCsv,
         firebaseAnalytics,
         firebaseCrashlytics,
-        firebasePerformance
+        firebasePerformance,
+        coroutinesCore,
+        coroutinesAndroid
     )
 
     private val hiltCompiler = "com.google.dagger:hilt-compiler:${Versions.hiltCompiler}"
@@ -60,7 +64,7 @@ object Dependencies {
     private val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     private val coroutinesTest ="org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutinesTest}"
 
-    val localTestLibraries = arrayListOf<String>(
+    val localTestLibraries = arrayListOf(
         junit,
         archCoreTesting,
         roomTesting,
@@ -72,7 +76,8 @@ object Dependencies {
     private val junitExt = "androidx.test.ext:junit:${Versions.extJunit}"
     private val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espressoCore}"
 
-    val instrumentedTestLibraries = arrayListOf<String>(
+    val instrumentedTestLibraries = arrayListOf(
+        roomTesting,
         junitExt,
         espressoCore
     )

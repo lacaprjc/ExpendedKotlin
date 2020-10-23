@@ -2,46 +2,59 @@ package com.lacaprjc.expended.ui.home
 
 import android.os.Bundle
 import android.view.View
-import androidx.activity.addCallback
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.ItemTouchHelper.DOWN
+import androidx.recyclerview.widget.ItemTouchHelper.UP
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.card.MaterialCardView
-import com.google.android.material.textfield.TextInputEditText
+import androidx.recyclerview.widget.RecyclerView
 import com.lacaprjc.expended.R
 import com.lacaprjc.expended.databinding.FragmentHomeBinding
 import com.lacaprjc.expended.listAdapters.AccountAdapter
+import com.lacaprjc.expended.model.AccountWithBalance
 import com.lacaprjc.expended.ui.account.AccountViewModel
 import com.lacaprjc.expended.ui.accountWithTransactions.AccountWithTransactionsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<MaterialCardView>
-    private lateinit var binding: FragmentHomeBinding
+    private lateinit var accountAdapter: AccountAdapter
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
 
-    private val homeViewModel
-            by navGraphViewModels<AccountWithTransactionsViewModel>(R.id.mobile_navigation) { defaultViewModelProviderFactory }
-    private val accountViewModel
-            by navGraphViewModels<AccountViewModel>(R.id.mobile_navigation) { defaultViewModelProviderFactory }
+    private val homeViewModel: AccountWithTransactionsViewModel by activityViewModels()
+    private val accountViewModel: AccountViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        requireActivity().window.statusBarColor =
-            ContextCompat.getColor(requireContext(), R.color.colorPrimary)
+        _binding = FragmentHomeBinding.bind(view)
 
-        binding = FragmentHomeBinding.bind(view)
+        setupMenuButtons()
+        setupAccountsList()
+        subscribeObservers()
+    }
 
-        bottomSheetBehavior = BottomSheetBehavior.from(binding.accountFragmentBottomSheetCard)
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
 
+    private fun setupMenuButtons() {
         binding.settingsButton.setOnClickListener {
             findNavController().navigate(HomeFragmentDirections.actionNavigationHomeToNavigationSettings())
         }
 
-        val accountAdapter = AccountAdapter(
+        binding.newAccountButton.setOnClickListener {
+            accountViewModel.startNewAccount(accountAdapter.itemCount)
+        }
+    }
+
+    private fun setupAccountsList() {
+        accountAdapter = AccountAdapter(
             onClickListener = {
                 findNavController().navigate(
                     HomeFragmentDirections.actionNavigationHomeToAccountDetailsFragment(
@@ -49,11 +62,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     )
                 )
             },
-            onLongClickListener = { account, balance ->
-                accountViewModel.setWorkingAccount(account, balance)
-                accountViewModel.setState(AccountViewModel.State.EDIT)
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-            }
         )
 
         val recyclerView = binding.accountsRecyclerView
@@ -61,59 +69,57 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         recyclerView.adapter = accountAdapter
         recyclerView.setHasFixedSize(true)
 
-        lifecycleScope.launchWhenResumed {
-            binding.accountFragment.findViewById<TextInputEditText>(R.id.accountNameInputEditText)
-                .setOnClickListener {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                }
-        }
+        // drag to reorder
+        val itemTouchHelper = ItemTouchHelper(
+            object : ItemTouchHelper.SimpleCallback(UP or DOWN, 0) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    val adapter = recyclerView.adapter as AccountAdapter
+                    val from = viewHolder.adapterPosition
+                    val to = target.adapterPosition
 
-        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner) {
-            when (bottomSheetBehavior.state) {
-                BottomSheetBehavior.STATE_EXPANDED -> {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                }
-                else -> {
-                    isEnabled = false
-                    activity?.onBackPressed()
-                }
-            }
-        }
+                    adapter.moveItem(from, to)
+                    adapter.notifyItemMoved(from, to)
 
-        subscribeObservers()
+                    println("from: $from\nto:$to")
+                    return true
+                }
+
+                override fun onSwiped(
+                    viewHolder: RecyclerView.ViewHolder,
+                    direction: Int
+                ) { /* ignored */ }
+            })
+
+        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
 
     private fun subscribeObservers() {
-        homeViewModel.getAllAccountsWithTransactions()
-            .observe(viewLifecycleOwner) { allAccountsWithTransactions ->
-                val accounts = allAccountsWithTransactions.map {
-                    it.account
+        lifecycleScope.launchWhenStarted {
+            homeViewModel.getAllAccountsWithTransactions().distinctUntilChanged().collect { allAccountsWithTransactions ->
+//                var currentMax = allAccountsWithTransactions.maxOf { it.account.orderPosition }
+//                val fixedAccountsWithTransactions: List<AccountWithTransactions> = allAccountsWithTransactions.map {
+//                    if (it.account.orderPosition == -1) {
+//                        AccountWithTransactions(it.account.copy(orderPosition = ++currentMax), it.transactions)
+//                    } else {
+//                        it
+//                    }
+//                }
+                val sortedAccountsWithTransactions =
+                    allAccountsWithTransactions.sortedBy { it.account.orderPosition }
+                val accountsWithBalances = sortedAccountsWithTransactions.map {
+                    AccountWithBalance(
+                        it.account,
+                        it.transactions.sumOf { transaction -> transaction.amount })
                 }
 
-                val balances = allAccountsWithTransactions.map { accountWithTransactions ->
-                    accountWithTransactions.transactions.sumOf { transaction ->
-                        transaction.amount
-                    }
-                }
-
-                (binding.accountsRecyclerView.adapter as AccountAdapter).submitAccounts(
-                    accounts,
-                    balances
-                )
+                accountAdapter.submitAccounts(accountsWithBalances)
 
                 binding.noAccountsText.visibility =
                     if (allAccountsWithTransactions.isNotEmpty()) View.INVISIBLE else View.VISIBLE
-            }
-
-        accountViewModel.getState().observe(viewLifecycleOwner) { state ->
-            when (state) {
-                AccountViewModel.State.DELETED,
-                AccountViewModel.State.ADDED,
-                AccountViewModel.State.UPDATED -> {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                }
-                else -> {
-                }
             }
         }
     }

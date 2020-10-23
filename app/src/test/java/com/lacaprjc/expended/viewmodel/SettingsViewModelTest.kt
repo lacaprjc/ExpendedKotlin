@@ -1,15 +1,15 @@
 package com.lacaprjc.expended.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.LiveData
 import com.lacaprjc.expended.common.TestCoroutineRule
 import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
-import com.lacaprjc.expended.ui.model.AccountWithTransactions
+import com.lacaprjc.expended.model.AccountWithTransactions
 import com.lacaprjc.expended.ui.settings.SettingsViewModel
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
@@ -18,7 +18,7 @@ import org.junit.Test
 @ExperimentalCoroutinesApi
 class SettingsViewModelTest {
     private lateinit var mockedRepository: AccountsWithTransactionsRepository
-    private lateinit var mockedLiveDataOfAccountsWithTranscations: LiveData<List<AccountWithTransactions>>
+    private lateinit var mockedLiveDataOfAccountsWithTranscations: Flow<List<AccountWithTransactions>>
     private lateinit var settingsViewModel: SettingsViewModel
 
 

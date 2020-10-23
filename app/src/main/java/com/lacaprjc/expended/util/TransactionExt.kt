@@ -1,6 +1,6 @@
 package com.lacaprjc.expended.util
 
-import com.lacaprjc.expended.ui.model.Transaction
+import com.lacaprjc.expended.model.Transaction
 import org.json.JSONObject
 
 fun Transaction.toJson(): JSONObject = JSONObject()

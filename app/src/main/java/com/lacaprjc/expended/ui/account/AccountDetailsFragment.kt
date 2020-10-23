@@ -1,25 +1,25 @@
 package com.lacaprjc.expended.ui.account
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.navigation.navGraphViewModels
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import com.lacaprjc.expended.R
 import com.lacaprjc.expended.databinding.FragmentAccountBinding
-import com.lacaprjc.expended.ui.model.Account
-import com.lacaprjc.expended.ui.model.Account.AccountType
+import com.lacaprjc.expended.model.Account
+import com.lacaprjc.expended.model.Account.AccountType
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
-class AccountFragment : Fragment(R.layout.fragment_account) {
-    private lateinit var binding: FragmentAccountBinding
-    private lateinit var accountCard: MaterialCardView
+class AccountDetailsFragment : Fragment(R.layout.fragment_account) {
     private lateinit var accountNameInput: TextInputLayout
     private lateinit var cashAccountCard: MaterialCardView
     private lateinit var creditAccountCard: MaterialCardView
@@ -28,39 +28,32 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
     private lateinit var personalAccountCard: MaterialCardView
     private lateinit var budgetAccountCard: MaterialCardView
 
-    private val accountViewModel
-            by navGraphViewModels<AccountViewModel>(R.id.mobile_navigation) { defaultViewModelProviderFactory }
+    private var _binding: FragmentAccountBinding? = null
+    private val binding get() = _binding!!
+
+    private val accountViewModel: AccountViewModel by activityViewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding = FragmentAccountBinding.bind(view)
+        _binding = FragmentAccountBinding.bind(view)
 
-        accountCard = binding.accountBalanceCard
+        setupAccountCard()
+        setupAccountTypeCards()
+        subscribeObservers()
+    }
 
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
+
+    private fun setupAccountCard() {
         accountNameInput = binding.accountNameInput
 
         binding.positiveButton.setOnClickListener {
-            context?.let { context ->
-                binding.root.findFocus()?.let { focus ->
-                    context.getSystemService(InputMethodManager::class.java)
-                        .hideSoftInputFromWindow(focus.windowToken, 0)
-                }
-            }
             when (accountViewModel.getState().value) {
-                AccountViewModel.State.ADD -> addAccount()
-                AccountViewModel.State.EDIT -> updateAccount()
+                AccountViewModel.State.NEW_ACCOUNT -> addAccount()
+                AccountViewModel.State.EDIT_ACCOUNT -> updateAccount()
                 else -> {
-                }
-            }
-        }
-
-        binding.accountBalanceInputEditText.doOnTextChanged { text, start, _, _ ->
-            text?.let { chars ->
-                val input = chars.toString()
-                val decimals = input.substringAfter(".", "")
-
-                if (decimals.isNotBlank() && decimals.length > 2) {
-                    binding.accountBalanceInputEditText.setText(chars.take(start))
-                    binding.accountBalanceInputEditText.setSelection(start)
                 }
             }
         }
@@ -69,18 +62,28 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
             deleteAccount(accountViewModel.getWorkingAccount().value!!.first)
         }
 
-        binding.neutralButton.setOnClickListener {
-            resetAccount()
-        }
-
         with(binding.accountBalanceInputEditText) {
             setOnClickListener {
                 if (text.toString() == "0.0") {
                     setText("")
                 }
             }
-        }
 
+            doOnTextChanged { text, start, _, _ ->
+                text?.let { chars ->
+                    val input = chars.toString()
+                    val decimals = input.substringAfter(".", "")
+
+                    if (decimals.isNotBlank() && decimals.length > 2) {
+                        binding.accountBalanceInputEditText.setText(chars.take(start))
+                        binding.accountBalanceInputEditText.setSelection(start)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setupAccountTypeCards() {
         cashAccountCard = binding.cashAccount.apply {
             setOnClickListener { accountViewModel.setAccountType(AccountType.CASH) }
         }
@@ -99,37 +102,39 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
         budgetAccountCard = binding.budgetAccount.apply {
             setOnClickListener { accountViewModel.setAccountType(AccountType.BUDGET) }
         }
+    }
 
-        accountViewModel.getAccountType().observe(viewLifecycleOwner) { selectedAccountType(it) }
+    private fun subscribeObservers() {
+        lifecycleScope.launchWhenStarted {
+            accountViewModel.getState().collect { state ->
+                when (state) {
+                    AccountViewModel.State.NEW_ACCOUNT -> {
+                        resetAllFields()
+                        binding.accountBalanceLabel.text = "Starting Balance"
+                        binding.accountBalanceInput.isEnabled = true
 
-        accountViewModel.getWorkingAccount().observe(viewLifecycleOwner) {
-            setAccount(it.first, it.second)
-        }
+                        binding.positiveButton.text = "ADD"
+                        binding.positiveButton.setIconResource(R.drawable.baseline_add_black_24dp)
+                        binding.negativeButton.visibility = View.INVISIBLE
+                    }
+                    AccountViewModel.State.EDIT_ACCOUNT -> {
+                        binding.accountBalanceLabel.text = "Account Balance"
+                        binding.accountBalanceInput.isEnabled = false
 
-        accountViewModel.getState().observe(viewLifecycleOwner) {
-            when (it) {
-                AccountViewModel.State.ADD -> {
-                    binding.accountBalanceLabel.text = "Starting Balance"
-                    binding.accountBalanceInput.isEnabled = true
-
-                    binding.positiveButton.text = "ADD"
-                    binding.positiveButton.setIconResource(R.drawable.baseline_add_black_24dp)
-                    binding.negativeButton.visibility = View.INVISIBLE
-                    binding.neutralButton.visibility = View.INVISIBLE
-                }
-                AccountViewModel.State.EDIT -> {
-                    binding.accountBalanceLabel.text = "Account Balance"
-                    binding.accountBalanceInput.isEnabled = false
-
-                    binding.positiveButton.text = "Update"
-                    binding.positiveButton.setIconResource(R.drawable.baseline_system_update_alt_black_24dp)
-                    binding.negativeButton.visibility = View.VISIBLE
-                    binding.neutralButton.visibility = View.VISIBLE
-                }
-                AccountViewModel.State.UPDATED, AccountViewModel.State.DELETED, AccountViewModel.State.ADDED -> resetAccount()
-                else -> {
+                        binding.positiveButton.text = "Update"
+                        binding.positiveButton.setIconResource(R.drawable.baseline_system_update_alt_black_24dp)
+                        binding.negativeButton.visibility = View.VISIBLE
+                    }
+                    AccountViewModel.State.UPDATED_ACCOUNT, AccountViewModel.State.DELETE_ACCOUNT, AccountViewModel.State.ADDED_ACCOUNT -> resetAllFields()
+                    else -> {
+                    }
                 }
             }
+        }
+
+        accountViewModel.getAccountType().observe(viewLifecycleOwner) { selectedAccountType(it) }
+        accountViewModel.getWorkingAccount().observe(viewLifecycleOwner) {
+            setAccount(it.first, it.second)
         }
     }
 
@@ -184,18 +189,19 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
         personalAccountCard.invalidate()
         budgetAccountCard.invalidate()
 
-        accountCard.setCardBackgroundColor(
-            ContextCompat.getColor(
-                requireContext(),
-                accountCardColor
+        binding.accountCardBackground.backgroundTintList =
+            ColorStateList.valueOf(
+                ContextCompat.getColor(
+                    requireContext(),
+                    accountCardColor
+                )
             )
-        )
         accountNameInput.startIconDrawable =
             ContextCompat.getDrawable(requireContext(), accountCardStartIconDrawable)
 
     }
 
-    private fun buildAccount(id: Long = 0): Account? {
+    private fun buildAccount(id: Long = 0, orderPosition: Int = 0): Account? {
         val name = accountNameInput.editText!!.text.toString()
 
         if (name.isBlank()) {
@@ -219,12 +225,13 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
             name = name,
             accountType = type,
             notes = notes,
-            id
+            accountId = id,
+            orderPosition = orderPosition
         )
     }
 
     private fun addAccount() {
-        buildAccount()?.let {
+        buildAccount(orderPosition = accountViewModel.getWorkingAccountOrderPosition())?.let {
             accountViewModel.addAccount(
                 it,
                 binding.accountBalanceInputEditText.text!!.toString().toDouble()
@@ -233,7 +240,8 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
     }
 
     private fun updateAccount() {
-        buildAccount(accountViewModel.getWorkingAccount().value!!.first.accountId)?.let {
+        val accountWithBalance: Pair<Account, Double> = accountViewModel.getWorkingAccount().value!!
+        buildAccount(accountWithBalance.first.accountId, orderPosition = accountWithBalance.first.orderPosition)?.let {
             accountViewModel.updateAccount(it)
         }
     }
@@ -252,16 +260,15 @@ class AccountFragment : Fragment(R.layout.fragment_account) {
             .show()
     }
 
-    private fun resetAccount() {
-        val newAccount = Account("", AccountType.CASH)
-        accountViewModel.setWorkingAccount(newAccount, 0.0)
-        accountViewModel.setState(AccountViewModel.State.ADD)
-        binding.accountBalanceInput.editText!!.setText("")
-    }
-
     private fun setAccount(account: Account, balance: Double) {
         binding.accountNameInput.editText!!.setText(account.name)
-        binding.accountBalanceInput.editText!!.setText(balance.toString())
+        binding.accountBalanceInput.editText!!.setText(if (balance != 0.0) balance.toString() else "")
         binding.accountNotesInput.editText!!.setText(account.notes)
+    }
+
+    private fun resetAllFields() {
+        binding.accountBalanceInputEditText.setText("")
+        binding.accountNameInputEditText.setText("")
+        binding.accountBalanceInputEditText.setText("")
     }
 }

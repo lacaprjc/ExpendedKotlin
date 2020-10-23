@@ -13,45 +13,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/accountsCard"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/accountsRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="@dimen/bottomSheetPeakHeightMargin"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        app:layout_constraintBottom_toTopOf="@id/bottomAppBarGroup"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/home_toolbar">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/accountsRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/account_item" />
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/settingsButton"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:insetLeft="0dp"
-        android:insetTop="0dp"
-        android:insetRight="0dp"
-        android:insetBottom="0dp"
-        app:icon="@drawable/ic_settings_24px"
-        app:iconGravity="textStart"
-        app:iconPadding="0dp"
-        app:iconTint="?attr/colorControlNormal"
-        app:layout_constraintBottom_toBottomOf="@+id/home_toolbar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/home_toolbar"
-        app:strokeWidth="0dp" />
+        app:layout_constraintTop_toBottomOf="@id/home_toolbar"
+        tools:listitem="@layout/account_item" />
 
     <TextView
         android:id="@+id/noAccountsText"
@@ -59,37 +30,45 @@
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:text="@string/noAccountsText"
-        app:layout_constraintBottom_toBottomOf="@id/accountsCard"
-        app:layout_constraintEnd_toEndOf="@id/accountsCard"
-        app:layout_constraintStart_toStartOf="@id/accountsCard"
-        app:layout_constraintTop_toTopOf="@id/accountsCard" />
+        app:layout_constraintBottom_toBottomOf="@id/accountsRecyclerView"
+        app:layout_constraintEnd_toEndOf="@id/accountsRecyclerView"
+        app:layout_constraintStart_toStartOf="@id/accountsRecyclerView"
+        app:layout_constraintTop_toTopOf="@id/accountsRecyclerView" />
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/bottomAppBarGroup"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="6dp"
+        android:layout_height="0dp"
+        app:constraint_referenced_ids="newAccountButton, settingsButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/newAccountButton" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/accountFragmentBottomSheetCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="-8dp"
-            app:behavior_peekHeight="@dimen/bottomSheetPeakHeight"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="20dp"
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/newAccountButton"
+        style="@style/IconOnlyButton.NoBorder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_vertical_margin"
+        app:icon="@drawable/baseline_add_black_24dp"
+        app:iconSize="28dp"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/settingsButton"
+        app:layout_constraintStart_toStartOf="parent" />
 
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/accountFragment"
-                android:name="com.lacaprjc.expended.ui.account.AccountFragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </com.google.android.material.card.MaterialCardView>
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/settingsButton"
+        style="@style/IconOnlyButton.NoBorder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_vertical_margin"
+        app:icon="@drawable/ic_settings_24px"
+        app:iconSize="28dp"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintBottom_toBottomOf="@id/newAccountButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/newAccountButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

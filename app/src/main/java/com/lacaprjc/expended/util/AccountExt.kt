@@ -1,7 +1,7 @@
 package com.lacaprjc.expended.util
 
 import com.lacaprjc.expended.R
-import com.lacaprjc.expended.ui.model.Account
+import com.lacaprjc.expended.model.Account
 import org.json.JSONObject
 
 fun Account.AccountType.getAssociatedColor() = when (this) {

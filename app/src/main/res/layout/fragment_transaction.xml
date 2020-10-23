@@ -1,185 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/rounded_top_corners"
+    android:backgroundTint="@color/colorBackground">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <View
+        android:id="@+id/transactionCardBackground"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/transactionCardHeight"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/transactionNameInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_corners"
-        android:backgroundTint="#222831">
+        android:layout_margin="@dimen/activity_vertical_margin"
+        android:paddingHorizontal="4dp"
+        android:paddingTop="4dp"
+        app:boxBackgroundMode="none"
+        app:errorTextColor="?attr/colorOnPrimary"
+        app:hintEnabled="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:startIconDrawable="@drawable/baseline_note_black_24dp"
+        app:startIconTint="?attr/colorOnSurface">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/transactionCard"
-            android:layout_width="0dp"
-            android:layout_height="280dp"
-            android:layout_margin="@dimen/activity_vertical_margin"
-            app:cardBackgroundColor="@color/colorCashCard"
-            app:cardCornerRadius="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/transactionNameInput"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="4dp"
-                    android:paddingTop="4dp"
-                    app:boxBackgroundMode="none"
-                    app:errorTextColor="?attr/colorOnPrimary"
-                    app:hintEnabled="false"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:startIconDrawable="@drawable/baseline_note_black_24dp"
-                    app:startIconTint="?attr/colorOnSurface">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/transactionNameInputEditText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="New Transaction"
-                        android:paddingTop="4dp"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                        android:textStyle="bold" />f
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/transactionAmountInput"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:boxBackgroundMode="none"
-                    app:hintEnabled="false"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.4"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.3"
-                    app:startIconDrawable="@drawable/baseline_attach_money_black_24dp"
-                    app:startIconTint="?attr/colorOnSurface">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/transactionAmountInputEditText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:hint="0.00"
-                        android:inputType="numberSigned|numberDecimal"
-                        android:paddingTop="12dp"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline3"
-                        android:textStyle="bold" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <TextView
-                    android:id="@+id/transactionDateInput"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="100dp"
-                    android:layout_marginTop="8dp"
-                    android:drawablePadding="20dp"
-                    android:gravity="center_vertical"
-                    android:hint="Date"
-                    android:paddingVertical="4dp"
-                    android:textStyle="bold"
-                    app:drawableStartCompat="@drawable/baseline_event_note_black_24dp"
-                    app:drawableTint="?attr/colorControlNormal"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/transactionAmountInput" />
-
-
-                <TextView
-                    android:id="@+id/transactionTimeInput"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:drawablePadding="20dp"
-                    android:drawableTint="?attr/colorControlNormal"
-                    android:gravity="center_vertical"
-                    android:hint="Time"
-                    android:paddingVertical="4dp"
-                    android:textColor="?attr/colorControlNormal"
-                    android:textStyle="bold"
-                    app:drawableStartCompat="@drawable/baseline_timer_black_24dp"
-                    app:layout_constraintEnd_toEndOf="@id/transactionDateInput"
-                    app:layout_constraintStart_toStartOf="@id/transactionDateInput"
-                    app:layout_constraintTop_toBottomOf="@id/transactionDateInput">
-
-                </TextView>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/neutralButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="#00000000"
-                    android:text="New"
-                    android:textColor="?attr/colorOnSurface"
-                    android:visibility="invisible"
-                    app:icon="@drawable/baseline_note_add_black_24dp"
-                    app:iconTint="?attr/colorOnSurface"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    tools:visibility="visible" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/negativeButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="#00000000"
-                    android:text="Delete"
-                    android:textColor="?attr/colorOnSurface"
-                    android:visibility="invisible"
-                    app:icon="@drawable/baseline_delete_forever_black_24dp"
-                    app:iconTint="?attr/colorOnSurface"
-                    app:layout_constraintBottom_toBottomOf="@id/positiveButton"
-                    app:layout_constraintEnd_toStartOf="@id/positiveButton"
-                    tools:visibility="visible" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/positiveButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="#00000000"
-                    android:text="Add"
-                    android:textColor="?attr/colorOnSurface"
-                    app:icon="@drawable/baseline_add_black_24dp"
-                    app:iconTint="?attr/colorOnSurface"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/transactionNotesInput"
-            android:layout_width="0dp"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/transactionNameInputEditText"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:hint="@string/transaction_notes_hint"
-            android:paddingBottom="16dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusTopStart="8dp"
-            app:layout_constraintEnd_toEndOf="@id/transactionCard"
-            app:layout_constraintStart_toStartOf="@id/transactionCard"
-            app:layout_constraintTop_toBottomOf="@id/transactionCard">
+            android:hint="@string/newTransactionHint"
+            android:paddingTop="4dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textStyle="bold" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/transactionAmountInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:boxBackgroundMode="none"
+        app:hintEnabled="false"
+        app:layout_constraintBottom_toBottomOf="@id/transactionCardBackground"
+        app:layout_constraintEnd_toEndOf="@id/transactionCardBackground"
+        app:layout_constraintHorizontal_bias="0.4"
+        app:layout_constraintStart_toStartOf="@id/transactionCardBackground"
+        app:layout_constraintTop_toTopOf="@id/transactionCardBackground"
+        app:layout_constraintVertical_bias="0.3"
+        app:startIconDrawable="@drawable/baseline_attach_money_black_24dp"
+        app:startIconTint="?attr/colorOnSurface">
 
-            </com.google.android.material.textfield.TextInputEditText>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/transactionAmountInputEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/emptyBalanceHint"
+            android:inputType="numberSigned|numberDecimal"
+            android:paddingTop="12dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline3"
+            android:textStyle="bold" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/transactionDateInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="8dp"
+        android:drawablePadding="20dp"
+        android:gravity="center_vertical"
+        android:hint="@string/dateHint"
+        android:paddingVertical="4dp"
+        android:textStyle="bold"
+        app:drawableStartCompat="@drawable/baseline_event_note_black_24dp"
+        app:drawableTint="?attr/colorControlNormal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/transactionAmountInput" />
 
-</ScrollView>
+
+    <TextView
+        android:id="@+id/transactionTimeInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:drawablePadding="20dp"
+        android:gravity="center_vertical"
+        android:hint="@string/timeHint"
+        android:paddingVertical="4dp"
+        android:textColor="?attr/colorControlNormal"
+        android:textStyle="bold"
+        app:drawableStartCompat="@drawable/baseline_timer_black_24dp"
+        app:drawableTint="?attr/colorControlNormal"
+        app:layout_constraintEnd_toEndOf="@id/transactionDateInput"
+        app:layout_constraintStart_toStartOf="@id/transactionDateInput"
+        app:layout_constraintTop_toBottomOf="@id/transactionDateInput">
+
+    </TextView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/negativeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#00000000"
+        android:text="@string/transactionNegativeButton"
+        android:textColor="?attr/colorOnSurface"
+        android:visibility="invisible"
+        app:icon="@drawable/baseline_delete_forever_black_24dp"
+        app:iconTint="?attr/colorOnSurface"
+        app:layout_constraintBottom_toBottomOf="@id/positiveButton"
+        app:layout_constraintEnd_toStartOf="@id/positiveButton"
+        app:layout_constraintTop_toTopOf="@id/positiveButton"
+        tools:visibility="visible" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/positiveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#00000000"
+        android:text="@string/transactionPositiveButton"
+        android:textColor="?attr/colorOnSurface"
+        app:icon="@drawable/baseline_add_black_24dp"
+        app:iconTint="?attr/colorOnSurface"
+        app:layout_constraintBottom_toBottomOf="@id/transactionCardBackground"
+        app:layout_constraintEnd_toEndOf="@id/transactionCardBackground"
+        app:layout_constraintTop_toBottomOf="@id/transactionTimeInput" />
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/transactionNotesInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:hint="@string/transaction_notes_hint"
+        android:paddingBottom="16dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:layout_constraintEnd_toEndOf="@id/transactionCardBackground"
+        app:layout_constraintStart_toStartOf="@id/transactionCardBackground"
+        app:layout_constraintTop_toBottomOf="@id/transactionCardBackground">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/transactionNotesInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </com.google.android.material.textfield.TextInputEditText>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

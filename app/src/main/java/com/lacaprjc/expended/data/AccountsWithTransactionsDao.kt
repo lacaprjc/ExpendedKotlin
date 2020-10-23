@@ -8,14 +8,15 @@ import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.Update
 import androidx.sqlite.db.SupportSQLiteQuery
-import com.lacaprjc.expended.ui.model.Account
-import com.lacaprjc.expended.ui.model.AccountWithTransactions
-import com.lacaprjc.expended.ui.model.Transaction
+import com.lacaprjc.expended.model.Account
+import com.lacaprjc.expended.model.AccountWithTransactions
+import com.lacaprjc.expended.model.Transaction
+import kotlinx.coroutines.flow.Flow
 import androidx.room.Transaction as RoomTransaction
 
 
 @Dao
-interface AccountDao {
+interface AccountsWithTransactionsDao {
     @Query("SELECT * FROM Account")
     fun getAllAccounts(): LiveData<List<Account>>
 
@@ -24,7 +25,7 @@ interface AccountDao {
 
     @RoomTransaction
     @Query("SELECT * FROM Account")
-    fun getAllAccountsWithTransactions(): LiveData<List<AccountWithTransactions>>
+    fun getAllAccountsWithTransactions(): Flow<List<AccountWithTransactions>>
 
     @RoomTransaction
     @Query("SELECT * FROM Account")
@@ -32,10 +33,7 @@ interface AccountDao {
 
     @RoomTransaction
     @Query("SELECT * FROM Account WHERE accountId = :id")
-    fun getAccountWithTransactions(id: Long): LiveData<AccountWithTransactions>
-
-//    @Query("SELECT * FROM `Transaction` WHERE forAccountId = :accountID")
-//    suspend fun getAllTransactionsForAccount(accountID: Long): LiveData<List<Transaction>>
+    fun getAccountWithTransactions(id: Long): Flow<AccountWithTransactions>
 
     @Insert
     suspend fun addAccount(account: Account): Long
@@ -47,7 +45,7 @@ interface AccountDao {
     suspend fun updateAccount(account: Account)
 
     @Insert
-    suspend fun addTransaction(transaction: Transaction)
+    suspend fun addTransaction(transaction: Transaction): Long
 
     @Update
     suspend fun updateTransaction(transaction: Transaction)

@@ -8,31 +8,38 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
-import com.lacaprjc.expended.ui.model.Account
-import com.lacaprjc.expended.ui.model.Transaction
+import com.lacaprjc.expended.model.Account
+import com.lacaprjc.expended.model.Transaction
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
+@ExperimentalCoroutinesApi
 class AccountViewModel @ViewModelInject constructor(
     private val repository: AccountsWithTransactionsRepository,
     @Assisted savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     enum class State {
-        EDIT,
-        ADD,
-        UPDATED,
-        ADDED,
-        DELETED
+        IDLE,
+        EDIT_ACCOUNT,
+        NEW_ACCOUNT,
+        UPDATED_ACCOUNT,
+        ADDED_ACCOUNT,
+        DELETE_ACCOUNT
     }
 
+    private val state: MutableStateFlow<State> = MutableStateFlow(State.IDLE)
     private val accountType = MutableLiveData(Account.AccountType.CASH)
-    private val state = MutableLiveData(State.ADD)
-    private val account = MutableLiveData(Account("", Account.AccountType.CASH) to 0.0)
+    private val account: MutableLiveData<Pair<Account, Double>> = MutableLiveData(Account("", Account.AccountType.CASH, orderPosition = 0) to 0.0)
 
-    fun getState(): LiveData<State> = state
+    fun getState(): StateFlow<State> = state
 
     fun getWorkingAccount(): LiveData<Pair<Account, Double>> = account
+
+    fun getWorkingAccountOrderPosition(): Int = account.value!!.first.orderPosition
 
     fun getAccountType(): LiveData<Account.AccountType> = accountType
 
@@ -40,7 +47,7 @@ class AccountViewModel @ViewModelInject constructor(
         accountType.value = type
     }
 
-    fun setWorkingAccount(account: Account, balance: Double) = viewModelScope.launch {
+    private fun setWorkingAccount(account: Account, balance: Double) = viewModelScope.launch {
         this@AccountViewModel.account.value = account to balance
         setAccountType(account.accountType)
     }
@@ -57,20 +64,34 @@ class AccountViewModel @ViewModelInject constructor(
                 ""
             )
             repository.addTransaction(initialTransaction)
-            setState(State.ADDED)
+            setState(State.ADDED_ACCOUNT)
         }
 
     fun updateAccount(account: Account) = viewModelScope.launch(Dispatchers.IO) {
         repository.updateAccount(account)
-        setState(State.UPDATED)
+        setState(State.UPDATED_ACCOUNT)
     }
 
     fun deleteAccount(account: Account) = viewModelScope.launch(Dispatchers.IO) {
         repository.deleteAccount(account)
-        setState(State.DELETED)
+        setState(State.DELETE_ACCOUNT)
     }
 
-    fun setState(state: State) = viewModelScope.launch {
-        this@AccountViewModel.state.value = state
+    fun startNewAccount(orderPosition: Int) {
+        state.value = State.NEW_ACCOUNT
+        setWorkingAccount(Account("", Account.AccountType.CASH, orderPosition = orderPosition), 0.0)
+    }
+
+    fun startEditingAccount(account: Account, balance: Double) {
+        state.value = State.EDIT_ACCOUNT
+        setWorkingAccount(account, balance)
+    }
+
+    fun setToIdleState() {
+        setState(State.IDLE)
+    }
+
+    private fun setState(newState: State) {
+        state.value = newState
     }
 }

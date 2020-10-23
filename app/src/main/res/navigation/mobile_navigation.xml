@@ -13,8 +13,7 @@
 
         <action
             android:id="@+id/action_navigation_home_to_accountDetailsFragment"
-            app:destination="@id/navigation_account_with_transactions"
-            app:launchSingleTop="true" />
+            app:destination="@id/navigation_account_with_transactions" />
         <action
             android:id="@+id/action_navigation_home_to_navigation_settings"
             app:destination="@id/navigation_settings" />

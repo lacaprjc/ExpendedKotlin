@@ -1,11 +1,40 @@
 <resources>
+
+    <style name="IconOnlyButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="iconPadding">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+    <style name="IconOnlyButton.NoBorder">
+        <item name="strokeWidth">0dp</item>
+    </style>
+
     <style name="RoundedBottomCardViewStyle" parent="@style/Widget.MaterialComponents.CardView">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlayForRoundedBottoms</item>
+    </style>
+
+    <style name="RoundedTopBottomSheetDialog" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/RoundedTopBottomSheet</item>
+    </style>
+
+    <style name="RoundedTopBottomSheet" parent="Widget.MaterialComponents.BottomSheet">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearanceOverlayForRoundedTops</item>
     </style>
 
     <style name="ShapeAppearanceOverlayForRoundedBottoms" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSizeBottomLeft">16dp</item>
         <item name="cornerSizeBottomRight">16dp</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlayForRoundedTops" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
     </style>
 </resources>

@@ -1,6 +1,6 @@
 package com.lacaprjc.expended.util
 
-import com.lacaprjc.expended.ui.model.AccountWithTransactions
+import com.lacaprjc.expended.model.AccountWithTransactions
 import org.json.JSONArray
 import org.json.JSONObject
 

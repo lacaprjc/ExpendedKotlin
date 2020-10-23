@@ -1,4 +1,4 @@
-package com.lacaprjc.expended.ui.model
+package com.lacaprjc.expended.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

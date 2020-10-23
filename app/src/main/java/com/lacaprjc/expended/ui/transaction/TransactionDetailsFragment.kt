@@ -4,34 +4,45 @@ import android.annotation.SuppressLint
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.navigation.navGraphViewModels
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.lacaprjc.expended.R
 import com.lacaprjc.expended.databinding.FragmentTransactionBinding
 import com.lacaprjc.expended.listAdapters.TransactionAdapter.Companion.DATE_FORMATTER
 import com.lacaprjc.expended.listAdapters.TransactionAdapter.Companion.TIME_FORMATTER
-import com.lacaprjc.expended.ui.model.Transaction
+import com.lacaprjc.expended.model.Transaction
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.ZoneId
+import java.time.ZoneOffset
 
 @AndroidEntryPoint
-class TransactionFragment : Fragment(R.layout.fragment_transaction) {
-    private lateinit var binding: FragmentTransactionBinding
+class TransactionDetailsFragment : Fragment(R.layout.fragment_transaction) {
+    private var _binding: FragmentTransactionBinding? = null
+    private val binding get() = _binding!!
 
-    private val transactionViewModel
-            by navGraphViewModels<TransactionViewModel>(R.id.mobile_navigation) { defaultViewModelProviderFactory }
+    private val transactionViewModel: TransactionViewModel by activityViewModels()
 
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding = FragmentTransactionBinding.bind(view)
+        _binding = FragmentTransactionBinding.bind(view)
 
+        setupTransactionCard()
+        observeData()
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
+
+    private fun setupTransactionCard() {
         val currentDateTime = LocalDateTime.now()
 
         binding.transactionAmountInputEditText.doOnTextChanged { text, start, _, _ ->
@@ -48,13 +59,14 @@ class TransactionFragment : Fragment(R.layout.fragment_transaction) {
 
         with(binding.transactionDateInput) {
             text = currentDateTime.format(DATE_FORMATTER)
-            setOnClickListener { view ->
-                val datePicker = MaterialDatePicker.Builder.datePicker().build()
+            setOnClickListener {
+                val datePicker: MaterialDatePicker<Long> =
+                    MaterialDatePicker.Builder.datePicker().build()
                 datePicker.addOnPositiveButtonClickListener { date ->
                     val formattedDate: LocalDateTime =
                         LocalDateTime.ofInstant(
                             Instant.ofEpochMilli(date),
-                            ZoneId.systemDefault()
+                            ZoneOffset.UTC.normalized()
                         )
                     text =
                         formattedDate.format(DATE_FORMATTER)
@@ -68,9 +80,9 @@ class TransactionFragment : Fragment(R.layout.fragment_transaction) {
             text = currentDateTime.format(TIME_FORMATTER)
             setOnClickListener {
                 // TODO: 9/10/20 theme the TimePickerDialog
-                val timePicker = TimePickerDialog(
+                TimePickerDialog(
                     requireContext(),
-                    { timePicker, hourOfDay, minute ->
+                    { _, hourOfDay, minute ->
                         text = LocalTime.of(hourOfDay, minute).format(TIME_FORMATTER)
                     },
                     0,
@@ -81,49 +93,44 @@ class TransactionFragment : Fragment(R.layout.fragment_transaction) {
         }
 
         binding.positiveButton.setOnClickListener {
-            context?.let { context ->
-                binding.root.findFocus()?.let { focus ->
-                    context.getSystemService(InputMethodManager::class.java)
-                        .hideSoftInputFromWindow(focus.windowToken, 0)
-                }
-            }
             when (transactionViewModel.getState().value) {
-                TransactionViewModel.State.ADD -> addTransaction()
-                TransactionViewModel.State.EDIT -> updateTransaction()
+                TransactionViewModel.State.NEW_TRANSACTION -> addTransaction()
+                TransactionViewModel.State.EDIT_TRANSACTION -> updateTransaction()
                 else -> {
                 }
             }
         }
+
 
         binding.negativeButton.setOnClickListener {
             deleteTransaction(transactionViewModel.getWorkingTransaction().value!!)
         }
+    }
 
-        binding.neutralButton.setOnClickListener {
-            resetTransaction()
-        }
-
+    private fun observeData() {
         transactionViewModel.getWorkingTransaction().observe(viewLifecycleOwner) {
             setTransaction(it)
         }
 
-        transactionViewModel.getState().observe(viewLifecycleOwner) { state ->
-            when (state) {
-                TransactionViewModel.State.ADD -> {
-                    binding.positiveButton.text = "ADD"
-                    binding.positiveButton.setIconResource(R.drawable.baseline_add_black_24dp)
-                    binding.neutralButton.visibility = View.INVISIBLE
-                    binding.negativeButton.visibility = View.INVISIBLE
+        lifecycleScope.launchWhenStarted {
+            transactionViewModel.getState().collect { state ->
+                when (state) {
+                    TransactionViewModel.State.NEW_TRANSACTION -> {
+                        resetAllFields()
+                        binding.positiveButton.text = "ADD"
+                        binding.positiveButton.setIconResource(R.drawable.baseline_add_black_24dp)
+                        binding.negativeButton.visibility = View.INVISIBLE
+                    }
+                    TransactionViewModel.State.EDIT_TRANSACTION -> {
+                        binding.positiveButton.text = "Update"
+                        binding.positiveButton.setIconResource(R.drawable.baseline_system_update_alt_black_24dp)
+                        binding.negativeButton.visibility = View.VISIBLE
+                    }
+                    TransactionViewModel.State.UPDATED_TRANSACTION, TransactionViewModel.State.ADDED_TRANSACTION, TransactionViewModel.State.DELETED_TRANSACTION -> resetAllFields()
+                    else -> {
+                    }
                 }
-                TransactionViewModel.State.EDIT -> {
-                    binding.positiveButton.text = "Update"
-                    binding.positiveButton.setIconResource(R.drawable.baseline_system_update_alt_black_24dp)
-                    binding.negativeButton.visibility = View.VISIBLE
-                    binding.neutralButton.visibility = View.VISIBLE
-                }
-                TransactionViewModel.State.UPDATED, TransactionViewModel.State.ADDED, TransactionViewModel.State.DELETED -> resetTransaction()
-                else -> {
-                }
+
             }
         }
     }
@@ -171,23 +178,20 @@ class TransactionFragment : Fragment(R.layout.fragment_transaction) {
         }
     }
 
-    private fun resetTransaction() {
-        val newTransaction = Transaction(
-            "",
-            forAccountId = transactionViewModel.getForAccountId().value!!,
-            0.0,
-            LocalDateTime.now(),
-            ""
-        )
-
-        transactionViewModel.setWorkingTransaction(newTransaction)
-        transactionViewModel.setState(TransactionViewModel.State.ADD)
+    private fun resetAllFields() {
+        val currentDateTime = LocalDateTime.now()
+        binding.transactionAmountInput.editText!!.setText("")
+        binding.transactionAmountInputEditText!!.setText("")
+        binding.transactionDateInput.text = currentDateTime.format(DATE_FORMATTER)
+        binding.transactionTimeInput.text = currentDateTime.format(TIME_FORMATTER)
+        binding.transactionNotesInputEditText.setText("")
     }
 
     private fun setTransaction(transaction: Transaction) {
-        binding.transactionNameInput.editText!!.setText(transaction.name)
-        binding.transactionAmountInput.editText!!.setText(transaction.amount.toString())
+        binding.transactionNameInputEditText.setText(transaction.name)
+        binding.transactionAmountInputEditText.setText(if (transaction.amount != 0.0) transaction.amount.toString() else "")
         binding.transactionDateInput.text = transaction.date.format(DATE_FORMATTER)
         binding.transactionTimeInput.text = transaction.date.format(TIME_FORMATTER)
+        binding.transactionNotesInputEditText.setText(transaction.notes)
     }
 }

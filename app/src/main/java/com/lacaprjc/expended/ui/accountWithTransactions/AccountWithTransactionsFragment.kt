@@ -1,17 +1,14 @@
 package com.lacaprjc.expended.ui.accountWithTransactions
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
-import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
-import androidx.navigation.navGraphViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.card.MaterialCardView
-import com.google.android.material.textfield.TextInputEditText
 import com.lacaprjc.expended.R
 import com.lacaprjc.expended.databinding.FragmentAccountWithTransactionsBinding
 import com.lacaprjc.expended.listAdapters.TransactionAdapter
@@ -20,31 +17,47 @@ import com.lacaprjc.expended.util.getAssociatedColor
 import com.lacaprjc.expended.util.getAssociatedIcon
 import com.lacaprjc.expended.util.toStringWithDecimalPlaces
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_account_with_transactions.view.*
+import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
 class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_transactions) {
-    private lateinit var binding: FragmentAccountWithTransactionsBinding
+    private lateinit var transactionAdapter: TransactionAdapter
 
-    private val transactionViewModel
-            by navGraphViewModels<TransactionViewModel>(R.id.mobile_navigation) { defaultViewModelProviderFactory }
-    private val accountWithTransactionsViewModel
-            by navGraphViewModels<AccountWithTransactionsViewModel>(R.id.mobile_navigation) { defaultViewModelProviderFactory }
-    private val args
-            by navArgs<AccountWithTransactionsFragmentArgs>()
+    private var _binding: FragmentAccountWithTransactionsBinding? = null
+    private val binding get() = _binding!!
 
+    private val transactionViewModel: TransactionViewModel by activityViewModels()
+    private val accountWithTransactionsViewModel: AccountWithTransactionsViewModel by activityViewModels()
+    private val args: AccountWithTransactionsFragmentArgs by navArgs()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding = FragmentAccountWithTransactionsBinding.bind(view)
+        _binding = FragmentAccountWithTransactionsBinding.bind(view)
 
-        val bottomSheetBehavior: BottomSheetBehavior<MaterialCardView> =
-            BottomSheetBehavior.from(binding.transactionFragmentBottomSheetCard)
+        setupMenuButtons()
+        setupTransactionList()
+        observeData()
+        transactionViewModel.setForAccountId(args.accountId)
+    }
 
-        val transactionAdapter = TransactionAdapter(
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
+
+    private fun setupMenuButtons() {
+        binding.newTransactionButton.setOnClickListener {
+            transactionViewModel.startNewTransaction()
+        }
+
+        binding.accountNotesButton.setOnClickListener {
+            // TODO: 10/22/20 show notes
+        }
+    }
+
+    private fun setupTransactionList() {
+        transactionAdapter = TransactionAdapter(
             onClickListener = {
-                transactionViewModel.setWorkingTransaction(it)
-                transactionViewModel.setState(TransactionViewModel.State.EDIT)
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                transactionViewModel.startEditingTransaction(it)
             }
         )
 
@@ -52,63 +65,45 @@ class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = transactionAdapter
         recyclerView.setHasFixedSize(true)
+    }
 
-        transactionViewModel.setForAccountId(args.accountId)
+    private fun observeData() {
+        lifecycleScope.launchWhenStarted {
+            transactionViewModel.getState().collect { state ->
+                when (state) {
+                    else -> {
 
-        transactionViewModel.getState().observe(viewLifecycleOwner) {
-            when (it) {
-                TransactionViewModel.State.UPDATED,
-                TransactionViewModel.State.ADDED,
-                TransactionViewModel.State.DELETED -> {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                }
-                else -> {
+                    }
                 }
             }
         }
 
-        accountWithTransactionsViewModel.getAccountWithTransactions(args.accountId)
-            .observe(viewLifecycleOwner) { accountWithTransactions ->
-                val accountColor = ContextCompat.getColor(
-                    requireContext(),
-                    accountWithTransactions.account.accountType.getAssociatedColor()
-                )
+        lifecycleScope.launchWhenStarted {
+            accountWithTransactionsViewModel.getAccountWithTransactions(args.accountId)
+                .collect { accountWithTransactions ->
+                    val accountColor = ContextCompat.getColor(
+                        requireContext(),
+                        accountWithTransactions.account.accountType.getAssociatedColor()
+                    )
 
-                requireActivity().window.statusBarColor = accountColor
-                binding.accountName.setCompoundDrawablesWithIntrinsicBounds(
-                    accountWithTransactions.account.accountType.getAssociatedIcon(),
-                    0,
-                    0,
-                    0
-                )
+                    requireActivity().window.statusBarColor = accountColor
+                    binding.accountDetailsGroup.backgroundTintList =
+                        ColorStateList.valueOf(accountColor)
 
-                binding.accountBalanceCard.setCardBackgroundColor(accountColor)
-                binding.accountBalanceCard.accountName.text = accountWithTransactions.account.name
-                binding.accountBalanceCard.accountBalance.text =
-                    accountWithTransactions.transactions.sumOf {
+                    binding.accountName.setCompoundDrawablesWithIntrinsicBounds(
+                        accountWithTransactions.account.accountType.getAssociatedIcon(),
+                        0,
+                        0,
+                        0
+                    )
+
+                    binding.accountName.text = accountWithTransactions.account.name
+                    binding.accountBalance.text = accountWithTransactions.transactions.sumOf {
                         it.amount
                     }.toStringWithDecimalPlaces(2)
 
-                transactionAdapter.submitTransactions(accountWithTransactions.transactions)
-            }
-
-        lifecycleScope.launchWhenResumed {
-            binding.transactionFragment.findViewById<TextInputEditText>(R.id.transactionNameInputEditText)
-                .setOnClickListener {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                    transactionAdapter.submitTransactions(accountWithTransactions.transactions)
                 }
-        }
-
-        activity?.onBackPressedDispatcher?.addCallback(viewLifecycleOwner) {
-            when (bottomSheetBehavior.state) {
-                BottomSheetBehavior.STATE_EXPANDED -> {
-                    bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                }
-                else -> {
-                    isEnabled = false
-                    activity?.onBackPressed()
-                }
-            }
         }
     }
 }

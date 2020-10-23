@@ -7,9 +7,9 @@ object Versions {
     const val googleServices = "4.3.4"
 
     //libs
-    const val coreKtx = "1.2.0"
+    const val coreKtx = "1.3.2"
     const val appcompat = "1.2.0"
-    const val constraintLayout = "2.0.0-beta8"
+    const val constraintLayout = "2.0.2"
     const val material = "1.2.1"
 
     private const val navVersion = "2.3.1"
@@ -39,15 +39,19 @@ object Versions {
     const val roomKtx = roomVersion
     const val roomCompiler = roomVersion
 
-    const val kotlinCsv = "0.11.1"
+    const val kotlinCsv = "0.12.0"
 
     const val leakCanary = "2.5"
 
+    private const val coroutinesVersion = "1.3.6"
+    val coroutinesCore = coroutinesVersion
+    val coroutinesAndroid = coroutinesVersion
+
     // local test
-    const val junit = "4.13"
+    const val junit = "4.13.1"
     const val archCore = "2.1.0"
     const val roomTest = roomVersion
-    const val mockitoInline = "3.3.3"
+    const val mockitoInline = "3.5.15"
     const val mockitoKotlin = "2.2.0"
     const val coroutinesTest = "1.3.9"
 

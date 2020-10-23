@@ -3,7 +3,7 @@
     <string name="title_home">Accounts</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
-    <string name="noAccountsText">Swipe up start adding accounts!</string>
+    <string name="noAccountsText">Tap the + button to start adding accounts!</string>
     <string name="icon_check_attribution">Check by Sophia Bai from the Noun Project</string>
     <string name="icon_cash_attribution">cash by Kiran Shastry from the Noun Project</string>
     <string name="icon_credit_attribution">Card by Kiran Shastry from the Noun Project</string>
@@ -21,4 +21,13 @@
 
     <string name="database_name">accounts.db</string>
     <string name="delete_all_button_text">Delete All Accounts and Transactions</string>
+    <string name="emptyBalanceHint">0.00</string>
+    <string name="newAccountBalanceHint">Account Balance</string>
+    <string name="accountCardNegativeButton">Delete</string>
+    <string name="accountCardPositiveButton">Add</string>
+    <string name="newTransactionHint">New Transaction</string>
+    <string name="dateHint">Date</string>
+    <string name="timeHint">Time</string>
+    <string name="transactionNegativeButton">Delete</string>
+    <string name="transactionPositiveButton">Add</string>
 </resources>

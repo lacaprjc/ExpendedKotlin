@@ -1,4 +1,4 @@
-package com.lacaprjc.expended.ui.model
+package com.lacaprjc.expended.model
 
 import androidx.room.Embedded
 import androidx.room.Relation
