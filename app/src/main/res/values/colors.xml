@@ -6,7 +6,7 @@
     <color name="colorAccent">#03DAC5</color>
     <color name="colorBackground">#FFEBE8F1</color>
 
-    <!--  Account Card Colors  -->
+    <!--    Account Card Colors -->
     <color name="colorCashCard">#FFFF5252</color>
     <color name="colorCreditCard">#FFFF4081</color>
     <color name="colorCheckingCard">#FFE040FB</color>
@@ -14,5 +14,6 @@
     <color name="colorPersonalCard">#FF536DFE</color>
     <color name="colorBudgetCard">#FF448AFF</color>
 
+    <!--    Transaction Card Colors -->
     <color name="colorTransactionCard">#219ebc</color>
 </resources>
