@@ -21,11 +21,14 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+        
+      - name: Decode google-services.json
+        env:
+          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
+        run: echo $FIREBASE_CONFIG > app/google-services.json
 
-      # Runs a single command using the runners shell
       - name: Gradle Clean
         run: ./gradlew clean
 
-      # Runs a set of commands using the runners shell
       - name: Gradle build
         run: ./gradlew build
