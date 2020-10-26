@@ -31,4 +31,5 @@
     <string name="transactionNegativeButton">Delete</string>
     <string name="transactionPositiveButton">Add</string>
     <string name="deleteAccountButton">Delete Account</string>
+    <string name="editAccountButton">Edit Account</string>
 </resources>
