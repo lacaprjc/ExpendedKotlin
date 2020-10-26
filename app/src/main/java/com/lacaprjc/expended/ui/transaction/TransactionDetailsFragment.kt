@@ -79,7 +79,6 @@ class TransactionDetailsFragment : Fragment(R.layout.fragment_transaction) {
         with(binding.transactionTimeInput) {
             text = currentDateTime.format(TIME_FORMATTER)
             setOnClickListener {
-                // TODO: 9/10/20 theme the TimePickerDialog
                 TimePickerDialog(
                     requireContext(),
                     { _, hourOfDay, minute ->

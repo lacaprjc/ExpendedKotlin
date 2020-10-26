@@ -13,7 +13,7 @@
         android:layout_height="@dimen/transactionCardHeight"
         android:layout_margin="@dimen/activity_vertical_margin"
         android:background="@drawable/rounded_corners"
-        android:backgroundTint="@color/colorPrimary"
+        android:backgroundTint="@color/colorTransactionCard"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -145,6 +145,7 @@
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:hint="@string/transaction_notes_hint"
         android:paddingBottom="16dp"
+        app:boxBackgroundColor="@color/colorBackground"
         app:boxCornerRadiusTopEnd="8dp"
         app:boxCornerRadiusTopStart="8dp"
         app:layout_constraintEnd_toEndOf="@id/transactionCardBackground"

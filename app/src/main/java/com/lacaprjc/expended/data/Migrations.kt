@@ -22,4 +22,6 @@ object Migrations {
             database.execSQL("ALTER TABLE NewAccount RENAME TO Account")
         }
     }
+
+    // TODO: 10/23/20 migrate to V4 that drops the AccountBackup table
 }

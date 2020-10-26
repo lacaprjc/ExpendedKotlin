@@ -13,4 +13,6 @@
     <color name="colorSavingsCard">#FF7C4DFF</color>
     <color name="colorPersonalCard">#FF536DFE</color>
     <color name="colorBudgetCard">#FF448AFF</color>
+
+    <color name="colorTransactionCard">#219ebc</color>
 </resources>

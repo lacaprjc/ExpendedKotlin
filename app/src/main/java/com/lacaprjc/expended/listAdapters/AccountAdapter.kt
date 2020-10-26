@@ -21,16 +21,21 @@ class AccountAdapter(
 
     companion object {
         val DIFF_CALLBACK = object : DiffUtil.ItemCallback<AccountWithBalance>() {
-            override fun areItemsTheSame(oldItem: AccountWithBalance, newItem: AccountWithBalance): Boolean =
+            override fun areItemsTheSame(
+                oldItem: AccountWithBalance,
+                newItem: AccountWithBalance
+            ): Boolean =
                 oldItem.account.accountId == newItem.account.accountId
 
-            override fun areContentsTheSame(oldItem: AccountWithBalance, newItem: AccountWithBalance) =
+            override fun areContentsTheSame(
+                oldItem: AccountWithBalance,
+                newItem: AccountWithBalance
+            ) =
                 oldItem.account.name == newItem.account.name
                         && oldItem.account.orderPosition == newItem.account.orderPosition
                         && oldItem.account.accountType == newItem.account.accountType
                         && oldItem.account.notes == newItem.account.notes
                         && oldItem.balance == newItem.balance
-
         }
     }
 
@@ -81,6 +86,8 @@ class AccountAdapter(
     }
 
     override fun getItemCount(): Int = differ.currentList.size
+
+    fun getItemAtPosition(position: Int): AccountWithBalance = differ.currentList[position]
 
     fun moveItem(from: Int, to: Int) {
         val currentList: MutableList<AccountWithBalance> = differ.currentList.toMutableList()

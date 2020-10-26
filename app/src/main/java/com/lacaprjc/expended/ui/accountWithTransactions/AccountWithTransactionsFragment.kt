@@ -7,11 +7,16 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.lacaprjc.expended.R
 import com.lacaprjc.expended.databinding.FragmentAccountWithTransactionsBinding
 import com.lacaprjc.expended.listAdapters.TransactionAdapter
+import com.lacaprjc.expended.model.Account
+import com.lacaprjc.expended.model.AccountWithBalance
+import com.lacaprjc.expended.ui.account.AccountViewModel
 import com.lacaprjc.expended.ui.transaction.TransactionViewModel
 import com.lacaprjc.expended.util.getAssociatedColor
 import com.lacaprjc.expended.util.getAssociatedIcon
@@ -27,8 +32,11 @@ class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_
     private val binding get() = _binding!!
 
     private val transactionViewModel: TransactionViewModel by activityViewModels()
+    private val accountViewModel: AccountViewModel by activityViewModels()
     private val accountWithTransactionsViewModel: AccountWithTransactionsViewModel by activityViewModels()
     private val args: AccountWithTransactionsFragmentArgs by navArgs()
+
+    private lateinit var currentAccountWithBalance: AccountWithBalance
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding = FragmentAccountWithTransactionsBinding.bind(view)
@@ -46,17 +54,27 @@ class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_
 
     private fun setupMenuButtons() {
         binding.newTransactionButton.setOnClickListener {
+            accountViewModel.setToIdleState()
             transactionViewModel.startNewTransaction()
         }
 
-        binding.accountNotesButton.setOnClickListener {
-            // TODO: 10/22/20 show notes
+        binding.editAccountButton.setOnClickListener {
+            transactionViewModel.setToIdleState()
+            accountViewModel.startEditingAccount(
+                currentAccountWithBalance.account,
+                currentAccountWithBalance.balance
+            )
+        }
+
+        binding.deleteAccountButton.setOnClickListener {
+            showDeleteDialog(currentAccountWithBalance.account)
         }
     }
 
     private fun setupTransactionList() {
         transactionAdapter = TransactionAdapter(
             onClickListener = {
+                accountViewModel.setToIdleState()
                 transactionViewModel.startEditingTransaction(it)
             }
         )
@@ -68,27 +86,22 @@ class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_
     }
 
     private fun observeData() {
-        lifecycleScope.launchWhenStarted {
-            transactionViewModel.getState().collect { state ->
-                when (state) {
-                    else -> {
+        accountViewModel.getAccountType().observe(viewLifecycleOwner) {
+            val accountColor = ContextCompat.getColor(
+                requireContext(),
+                it.getAssociatedColor()
+            )
 
-                    }
-                }
-            }
+            binding.accountDetailsGroup.backgroundTintList =
+                ColorStateList.valueOf(accountColor)
         }
 
         lifecycleScope.launchWhenStarted {
             accountWithTransactionsViewModel.getAccountWithTransactions(args.accountId)
                 .collect { accountWithTransactions ->
-                    val accountColor = ContextCompat.getColor(
-                        requireContext(),
-                        accountWithTransactions.account.accountType.getAssociatedColor()
-                    )
-
-                    requireActivity().window.statusBarColor = accountColor
-                    binding.accountDetailsGroup.backgroundTintList =
-                        ColorStateList.valueOf(accountColor)
+                    currentAccountWithBalance = AccountWithBalance(
+                        accountWithTransactions.account,
+                        accountWithTransactions.transactions.sumOf { it.amount })
 
                     binding.accountName.setCompoundDrawablesWithIntrinsicBounds(
                         accountWithTransactions.account.accountType.getAssociatedIcon(),
@@ -98,12 +111,28 @@ class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_
                     )
 
                     binding.accountName.text = accountWithTransactions.account.name
-                    binding.accountBalance.text = accountWithTransactions.transactions.sumOf {
-                        it.amount
-                    }.toStringWithDecimalPlaces(2)
+                    binding.accountBalance.text =
+                        currentAccountWithBalance.balance.toStringWithDecimalPlaces(2)
 
                     transactionAdapter.submitTransactions(accountWithTransactions.transactions)
+                    accountViewModel.setAccountType(accountWithTransactions.account.accountType)
                 }
         }
+    }
+
+    private fun showDeleteDialog(account: Account) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Remove Account?")
+            .setMessage("Are you sure you want to remove the account ${account.name}? " +
+                    "This will also remove all associated transactions and is irreversible.")
+            .setPositiveButton("Delete") { dialog, _ ->
+                accountViewModel.deleteAccount(account)
+                dialog.dismiss()
+                findNavController().navigateUp()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.cancel()
+            }
+            .show()
     }
 }

@@ -11,7 +11,7 @@
         android:layout_height="0dp"
         android:background="@color/colorPrimary"
         app:constraint_referenced_ids="accountName, accountBalance, accountBalanceLabel"
-        app:layout_constraintBottom_toBottomOf="@id/accountBalanceLabel"
+        app:layout_constraintBottom_toBottomOf="@id/accountButtonsGroup"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -56,12 +56,47 @@
         android:id="@+id/accountBalanceLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/activity_vertical_margin"
         android:text="@string/account_balance_label"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/accountBalance" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/accountButtonsGroup"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:constraint_referenced_ids="editAccountButton, deleteAccountButton"
+        app:layout_constraintBottom_toBottomOf="@id/deleteAccountButton"
+        app:layout_constraintEnd_toEndOf="@id/deleteAccountButton"
+        app:layout_constraintStart_toStartOf="@id/editAccountButton"
+        app:layout_constraintTop_toTopOf="@id/deleteAccountButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/editAccountButton"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit Account"
+        android:textColor="?attr/colorControlNormal"
+        app:icon="@drawable/ic_noun_note"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintEnd_toStartOf="@id/deleteAccountButton"
+        app:layout_constraintTop_toTopOf="@id/deleteAccountButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/deleteAccountButton"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+        android:text="@string/deleteAccountButton"
+        android:textColor="?attr/colorControlNormal"
+        app:icon="@drawable/baseline_delete_forever_black_24dp"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/accountBalanceLabel"
+        app:strokeWidth="0dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/transactionsRecyclerView"
@@ -78,24 +113,11 @@
         android:id="@+id/bottomAppBarGroup"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:constraint_referenced_ids="accountNotesButton, newTransactionButton"
+        app:constraint_referenced_ids="editAccountButton, newTransactionButton"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/newTransactionButton" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/accountNotesButton"
-        style="@style/IconOnlyButton.NoBorder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/activity_vertical_margin"
-        app:icon="@drawable/ic_noun_note"
-        app:iconSize="28dp"
-        app:iconTint="?attr/colorControlNormal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/newTransactionButton"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/newTransactionButton"
@@ -108,5 +130,5 @@
         app:iconTint="?attr/colorControlNormal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/accountNotesButton" />
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

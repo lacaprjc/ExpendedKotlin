@@ -12,7 +12,7 @@
         tools:layout="@layout/fragment_home">
 
         <action
-            android:id="@+id/action_navigation_home_to_accountDetailsFragment"
+            android:id="@+id/action_navigation_home_to_accountWithTransactionsFragment"
             app:destination="@id/navigation_account_with_transactions" />
         <action
             android:id="@+id/action_navigation_home_to_navigation_settings"
@@ -28,6 +28,10 @@
             android:name="accountId"
             android:defaultValue="0L"
             app:argType="long" />
+        <argument
+            android:name="accountColorResId"
+            android:defaultValue="-1"
+            app:argType="integer" />
     </fragment>
 
     <fragment
@@ -35,6 +39,18 @@
         android:name="com.lacaprjc.expended.ui.settings.SettingsFragment"
         android:label="SettingsFragment"
         tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/navigation_account_details_fragment"
+        android:name="com.lacaprjc.expended.ui.account.AccountDetailsFragment"
+        android:label="AccountDetailsFragment"
+        tools:layout="@layout/fragment_account" />
+
+    <fragment
+        android:id="@+id/navigation_transaction_details_fragment"
+        android:name="com.lacaprjc.expended.ui.transaction.TransactionDetailsFragment"
+        android:label="TransactionDetailsFragment"
+        tools:layout="@layout/fragment_transaction" />
 
 
 </navigation>

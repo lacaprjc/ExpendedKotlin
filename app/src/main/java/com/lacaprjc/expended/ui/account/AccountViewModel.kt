@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lacaprjc.expended.data.AccountsWithTransactionsRepository
 import com.lacaprjc.expended.model.Account
+import com.lacaprjc.expended.model.AccountWithBalance
 import com.lacaprjc.expended.model.Transaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,18 +29,26 @@ class AccountViewModel @ViewModelInject constructor(
         NEW_ACCOUNT,
         UPDATED_ACCOUNT,
         ADDED_ACCOUNT,
-        DELETE_ACCOUNT
+        DELETED_ACCOUNT
     }
 
+    enum class Mode {
+        IDLE,
+        REORDERING
+    }
+
+    private var reorderMode: MutableStateFlow<Mode> = MutableStateFlow(Mode.IDLE)
     private val state: MutableStateFlow<State> = MutableStateFlow(State.IDLE)
     private val accountType = MutableLiveData(Account.AccountType.CASH)
-    private val account: MutableLiveData<Pair<Account, Double>> = MutableLiveData(Account("", Account.AccountType.CASH, orderPosition = 0) to 0.0)
+    private val accountWithBalance: MutableLiveData<AccountWithBalance> = MutableLiveData(AccountWithBalance(Account("", accountType = Account.AccountType.CASH, orderPosition = -1), 0.0))
 
     fun getState(): StateFlow<State> = state
 
-    fun getWorkingAccount(): LiveData<Pair<Account, Double>> = account
+    fun getReorderingMode(): StateFlow<Mode> = reorderMode
 
-    fun getWorkingAccountOrderPosition(): Int = account.value!!.first.orderPosition
+    fun getWorkingAccountWithBalance(): LiveData<AccountWithBalance> = accountWithBalance
+
+    fun getWorkingAccountOrderPosition(): Int = getWorkingAccountWithBalance().value!!.account.orderPosition
 
     fun getAccountType(): LiveData<Account.AccountType> = accountType
 
@@ -48,7 +57,7 @@ class AccountViewModel @ViewModelInject constructor(
     }
 
     private fun setWorkingAccount(account: Account, balance: Double) = viewModelScope.launch {
-        this@AccountViewModel.account.value = account to balance
+        this@AccountViewModel.accountWithBalance.value = AccountWithBalance(account, balance)
         setAccountType(account.accountType)
     }
 
@@ -74,7 +83,8 @@ class AccountViewModel @ViewModelInject constructor(
 
     fun deleteAccount(account: Account) = viewModelScope.launch(Dispatchers.IO) {
         repository.deleteAccount(account)
-        setState(State.DELETE_ACCOUNT)
+        repository.deleteTransactionsForAccountWithId(account.accountId)
+        setState(State.DELETED_ACCOUNT)
     }
 
     fun startNewAccount(orderPosition: Int) {
@@ -89,6 +99,14 @@ class AccountViewModel @ViewModelInject constructor(
 
     fun setToIdleState() {
         setState(State.IDLE)
+    }
+
+    fun toggleReorderMode() {
+        if (reorderMode.value == Mode.IDLE) {
+            reorderMode.value = Mode.REORDERING
+        } else {
+            reorderMode.value = Mode.IDLE
+        }
     }
 
     private fun setState(newState: State) {

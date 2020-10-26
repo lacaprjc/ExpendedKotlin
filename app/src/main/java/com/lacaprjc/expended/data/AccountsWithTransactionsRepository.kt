@@ -31,6 +31,8 @@ class AccountsWithTransactionsRepository constructor(private val dao: AccountsWi
 
     suspend fun deleteTransaction(transaction: Transaction) = dao.deleteTransaction(transaction)
 
+    suspend fun deleteTransactionsForAccountWithId(accountId: Long) = dao.deleteTransactionsForAccountWithId(accountId)
+
     suspend fun deleteAll() = dao.deleteAllAccountsAndTransactions()
 
     fun checkpoint() = runBlocking {

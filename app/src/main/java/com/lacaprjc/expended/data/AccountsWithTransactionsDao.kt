@@ -53,6 +53,9 @@ interface AccountsWithTransactionsDao {
     @Delete
     suspend fun deleteTransaction(transaction: Transaction)
 
+    @Query("DELETE FROM `Transaction` WHERE forAccountId = :accountId")
+    suspend fun deleteTransactionsForAccountWithId(accountId: Long)
+
     @RawQuery
     suspend fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
 

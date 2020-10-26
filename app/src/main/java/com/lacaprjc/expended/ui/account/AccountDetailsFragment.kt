@@ -9,12 +9,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import com.lacaprjc.expended.R
 import com.lacaprjc.expended.databinding.FragmentAccountBinding
 import com.lacaprjc.expended.model.Account
 import com.lacaprjc.expended.model.Account.AccountType
+import com.lacaprjc.expended.model.AccountWithBalance
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 
@@ -56,10 +56,6 @@ class AccountDetailsFragment : Fragment(R.layout.fragment_account) {
                 else -> {
                 }
             }
-        }
-
-        binding.negativeButton.setOnClickListener {
-            deleteAccount(accountViewModel.getWorkingAccount().value!!.first)
         }
 
         with(binding.accountBalanceInputEditText) {
@@ -115,7 +111,6 @@ class AccountDetailsFragment : Fragment(R.layout.fragment_account) {
 
                         binding.positiveButton.text = "ADD"
                         binding.positiveButton.setIconResource(R.drawable.baseline_add_black_24dp)
-                        binding.negativeButton.visibility = View.INVISIBLE
                     }
                     AccountViewModel.State.EDIT_ACCOUNT -> {
                         binding.accountBalanceLabel.text = "Account Balance"
@@ -123,9 +118,8 @@ class AccountDetailsFragment : Fragment(R.layout.fragment_account) {
 
                         binding.positiveButton.text = "Update"
                         binding.positiveButton.setIconResource(R.drawable.baseline_system_update_alt_black_24dp)
-                        binding.negativeButton.visibility = View.VISIBLE
                     }
-                    AccountViewModel.State.UPDATED_ACCOUNT, AccountViewModel.State.DELETE_ACCOUNT, AccountViewModel.State.ADDED_ACCOUNT -> resetAllFields()
+                    AccountViewModel.State.UPDATED_ACCOUNT, AccountViewModel.State.DELETED_ACCOUNT, AccountViewModel.State.ADDED_ACCOUNT -> resetAllFields()
                     else -> {
                     }
                 }
@@ -133,8 +127,8 @@ class AccountDetailsFragment : Fragment(R.layout.fragment_account) {
         }
 
         accountViewModel.getAccountType().observe(viewLifecycleOwner) { selectedAccountType(it) }
-        accountViewModel.getWorkingAccount().observe(viewLifecycleOwner) {
-            setAccount(it.first, it.second)
+        accountViewModel.getWorkingAccountWithBalance().observe(viewLifecycleOwner) {
+            setAccount(it.account, it.balance)
         }
     }
 
@@ -201,7 +195,7 @@ class AccountDetailsFragment : Fragment(R.layout.fragment_account) {
 
     }
 
-    private fun buildAccount(id: Long = 0, orderPosition: Int = 0): Account? {
+    private fun buildAccountWithBalance(id: Long = 0, orderPosition: Int = 0): AccountWithBalance? {
         val name = accountNameInput.editText!!.text.toString()
 
         if (name.isBlank()) {
@@ -221,43 +215,28 @@ class AccountDetailsFragment : Fragment(R.layout.fragment_account) {
         val type = accountViewModel.getAccountType().value!!
         val notes = binding.accountNotesInput.editText!!.text.toString()
 
-        return Account(
+        val account = Account(
             name = name,
             accountType = type,
             notes = notes,
             accountId = id,
             orderPosition = orderPosition
         )
+
+        return AccountWithBalance(account, balance)
     }
 
     private fun addAccount() {
-        buildAccount(orderPosition = accountViewModel.getWorkingAccountOrderPosition())?.let {
-            accountViewModel.addAccount(
-                it,
-                binding.accountBalanceInputEditText.text!!.toString().toDouble()
-            )
+        buildAccountWithBalance(orderPosition = accountViewModel.getWorkingAccountOrderPosition())?.let {
+            accountViewModel.addAccount(it.account, it.balance)
         }
     }
 
     private fun updateAccount() {
-        val accountWithBalance: Pair<Account, Double> = accountViewModel.getWorkingAccount().value!!
-        buildAccount(accountWithBalance.first.accountId, orderPosition = accountWithBalance.first.orderPosition)?.let {
-            accountViewModel.updateAccount(it)
+        val accountWithBalance: AccountWithBalance = accountViewModel.getWorkingAccountWithBalance().value!!
+        buildAccountWithBalance(accountWithBalance.account.accountId, orderPosition = accountWithBalance.account.orderPosition)?.let {
+            accountViewModel.updateAccount(it.account)
         }
-    }
-
-    private fun deleteAccount(account: Account) {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Remove Account?")
-            .setMessage("Are you sure you want to remove this account?")
-            .setPositiveButton("Delete") { dialog, _ ->
-                accountViewModel.deleteAccount(account)
-                dialog.dismiss()
-            }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.cancel()
-            }
-            .show()
     }
 
     private fun setAccount(account: Account, balance: Double) {

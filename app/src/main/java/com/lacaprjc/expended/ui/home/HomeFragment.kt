@@ -16,10 +16,16 @@ import com.lacaprjc.expended.databinding.FragmentHomeBinding
 import com.lacaprjc.expended.listAdapters.AccountAdapter
 import com.lacaprjc.expended.model.AccountWithBalance
 import com.lacaprjc.expended.ui.account.AccountViewModel
+import com.lacaprjc.expended.ui.account.AccountViewModel.Mode.IDLE
+import com.lacaprjc.expended.ui.account.AccountViewModel.Mode.REORDERING
 import com.lacaprjc.expended.ui.accountWithTransactions.AccountWithTransactionsViewModel
+import com.lacaprjc.expended.util.getAssociatedColor
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -27,8 +33,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private val homeViewModel: AccountWithTransactionsViewModel by activityViewModels()
+    private val accountWithTransactionsViewModel: AccountWithTransactionsViewModel by activityViewModels()
     private val accountViewModel: AccountViewModel by activityViewModels()
+
+    private var accountsWereReordered = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding = FragmentHomeBinding.bind(view)
@@ -40,7 +48,29 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onDestroyView() {
         _binding = null
+        // update the database if the items were reordered
         super.onDestroyView()
+    }
+
+    private fun updateAccountOrdering() {
+        lifecycleScope.launch(Dispatchers.Default) {
+            val reorderedList = mutableListOf<AccountWithBalance>()
+            for (i in 0 until accountAdapter.itemCount) {
+                val currentAccountWithBalance: AccountWithBalance =
+                    accountAdapter.getItemAtPosition(i)
+                reorderedList.add(
+                    currentAccountWithBalance.copy(
+                        account = currentAccountWithBalance.account.copy(
+                            orderPosition = i
+                        )
+                    )
+                )
+            }
+
+            reorderedList.forEach {
+                accountViewModel.updateAccount(it.account)
+            }
+        }
     }
 
     private fun setupMenuButtons() {
@@ -51,17 +81,26 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.newAccountButton.setOnClickListener {
             accountViewModel.startNewAccount(accountAdapter.itemCount)
         }
+
+        binding.arrangeAccountsButton.setOnClickListener {
+            if (accountViewModel.getReorderingMode().value == REORDERING && accountsWereReordered) {
+                updateAccountOrdering()
+            }
+
+            accountViewModel.toggleReorderMode()
+        }
     }
 
     private fun setupAccountsList() {
         accountAdapter = AccountAdapter(
             onClickListener = {
                 findNavController().navigate(
-                    HomeFragmentDirections.actionNavigationHomeToAccountDetailsFragment(
-                        it.accountId
+                    HomeFragmentDirections.actionNavigationHomeToAccountWithTransactionsFragment(
+                        it.accountId,
+                        it.accountType.getAssociatedColor()
                     )
                 )
-            },
+            }
         )
 
         val recyclerView = binding.accountsRecyclerView
@@ -81,17 +120,23 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     val from = viewHolder.adapterPosition
                     val to = target.adapterPosition
 
-                    adapter.moveItem(from, to)
-                    adapter.notifyItemMoved(from, to)
+                    if (from != to) {
+                        adapter.moveItem(from, to)
+                        accountsWereReordered = true
+                    }
 
-                    println("from: $from\nto:$to")
                     return true
                 }
 
                 override fun onSwiped(
                     viewHolder: RecyclerView.ViewHolder,
                     direction: Int
-                ) { /* ignored */ }
+                ) { /* ignored */
+                }
+
+                override fun isLongPressDragEnabled(): Boolean {
+                    return accountViewModel.getReorderingMode().value == REORDERING
+                }
             })
 
         itemTouchHelper.attachToRecyclerView(recyclerView)
@@ -99,27 +144,37 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun subscribeObservers() {
         lifecycleScope.launchWhenStarted {
-            homeViewModel.getAllAccountsWithTransactions().distinctUntilChanged().collect { allAccountsWithTransactions ->
-//                var currentMax = allAccountsWithTransactions.maxOf { it.account.orderPosition }
-//                val fixedAccountsWithTransactions: List<AccountWithTransactions> = allAccountsWithTransactions.map {
-//                    if (it.account.orderPosition == -1) {
-//                        AccountWithTransactions(it.account.copy(orderPosition = ++currentMax), it.transactions)
-//                    } else {
-//                        it
-//                    }
-//                }
-                val sortedAccountsWithTransactions =
-                    allAccountsWithTransactions.sortedBy { it.account.orderPosition }
-                val accountsWithBalances = sortedAccountsWithTransactions.map {
-                    AccountWithBalance(
-                        it.account,
-                        it.transactions.sumOf { transaction -> transaction.amount })
-                }
+            launch {
+                accountWithTransactionsViewModel.getAllAccountsWithTransactions()
+                    .distinctUntilChanged()
+                    .collectLatest { allAccountsWithTransactions ->
+                        val sortedAccountsWithTransactions =
+                            allAccountsWithTransactions.sortedBy { it.account.orderPosition }
+                        val accountsWithBalances = sortedAccountsWithTransactions.map {
+                            AccountWithBalance(
+                                it.account,
+                                it.transactions.sumOf { transaction -> transaction.amount })
+                        }
 
-                accountAdapter.submitAccounts(accountsWithBalances)
+                        accountAdapter.submitAccounts(accountsWithBalances)
 
-                binding.noAccountsText.visibility =
-                    if (allAccountsWithTransactions.isNotEmpty()) View.INVISIBLE else View.VISIBLE
+                        binding.noAccountsText.visibility =
+                            if (allAccountsWithTransactions.isNotEmpty()) View.INVISIBLE else View.VISIBLE
+                    }
+            }
+
+            launch {
+                accountViewModel.getReorderingMode()
+                    .collect { mode ->
+                        when (mode) {
+                            REORDERING -> {
+                                binding.arrangeAccountsButton.setIconResource(R.drawable.ic_baseline_check_circle_outline_24)
+                            }
+                            IDLE -> {
+                                binding.arrangeAccountsButton.setIconResource(R.drawable.ic_noun_reorder)
+                            }
+                        }
+                    }
             }
         }
     }
