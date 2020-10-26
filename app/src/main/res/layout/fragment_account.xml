@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/rounded_top_corners"
+    android:backgroundTint="@color/colorBackground">
+
+    <View
+        android:id="@+id/accountCardBackground"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/accountCardHeight"
+        android:layout_margin="8dp"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/colorCashCard"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/accountNameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="4dp"
+        android:paddingTop="4dp"
+        app:boxBackgroundMode="none"
+        app:errorTextColor="?attr/colorOnPrimary"
+        app:hintEnabled="false"
+        app:layout_constraintEnd_toEndOf="@id/accountCardBackground"
+        app:layout_constraintStart_toStartOf="@id/accountCardBackground"
+        app:layout_constraintTop_toTopOf="@id/accountCardBackground"
+        app:startIconDrawable="@drawable/ic_noun_cash_3506076"
+        app:startIconTint="?attr/colorOnSurface">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/accountNameInputEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="New Account"
+            android:paddingTop="4dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textStyle="bold" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/accountBalanceInput"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:boxBackgroundMode="none"
+        app:hintEnabled="false"
+        app:layout_constraintBottom_toBottomOf="@id/accountCardBackground"
+        app:layout_constraintEnd_toEndOf="@id/accountCardBackground"
+        app:layout_constraintHorizontal_bias="0.4"
+        app:layout_constraintStart_toStartOf="@id/accountCardBackground"
+        app:layout_constraintTop_toTopOf="@id/accountCardBackground"
+        app:layout_constraintVertical_bias="0.4"
+        app:startIconDrawable="@drawable/baseline_attach_money_black_24dp"
+        app:startIconTint="?attr/colorOnSurface">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/accountBalanceInputEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/emptyBalanceHint"
+            android:inputType="numberDecimal"
+            android:paddingTop="12dp"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline3"
+            android:textStyle="bold" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/accountBalanceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/newAccountBalanceHint"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/accountBalanceInput" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/positiveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#00000000"
+        android:text="@string/accountCardPositiveButton"
+        android:textColor="?attr/colorOnSurface"
+        app:icon="@drawable/baseline_add_black_24dp"
+        app:iconTint="?attr/colorOnSurface"
+        app:layout_constraintBottom_toBottomOf="@id/accountCardBackground"
+        app:layout_constraintEnd_toEndOf="@id/accountCardBackground" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cashAccount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintEnd_toStartOf="@id/creditAccount"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/creditAccount"
+        app:strokeColor="@color/colorCashCard">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/icon_cash_attribution"
+                android:paddingVertical="12dp"
+                app:srcCompat="@drawable/ic_noun_cash_3506076" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorCashCard"
+                android:paddingVertical="16dp"
+                android:text="Cash"
+                android:textAlignment="center"
+                android:textColor="?attr/colorOnPrimary" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/creditAccount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintEnd_toStartOf="@id/checkingAccount"
+        app:layout_constraintStart_toEndOf="@id/cashAccount"
+        app:layout_constraintTop_toBottomOf="@id/accountCardBackground"
+        app:strokeColor="@color/colorCreditCard">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/icon_credit_attribution"
+                android:paddingVertical="12dp"
+                app:srcCompat="@drawable/ic_noun_card_3510430" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorCreditCard"
+                android:paddingVertical="16dp"
+                android:text="Credit"
+                android:textAlignment="center"
+                android:textColor="?attr/colorOnPrimary" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/checkingAccount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/creditAccount"
+        app:layout_constraintTop_toTopOf="@id/creditAccount"
+        app:strokeColor="@color/colorCheckingCard">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/icon_check_attribution"
+                android:paddingVertical="12dp"
+                app:srcCompat="@drawable/ic_noun_check_1923696" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorCheckingCard"
+                android:paddingVertical="16dp"
+                android:text="Checking"
+                android:textAlignment="center"
+                android:textColor="?attr/colorOnPrimary" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/savingsAccount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintEnd_toStartOf="@id/personalAccount"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/personalAccount"
+        app:strokeColor="@color/colorSavingsCard">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/icon_savings_attribution"
+                android:paddingVertical="12dp"
+                app:srcCompat="@drawable/ic_noun_saving_1959320" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorSavingsCard"
+                android:paddingVertical="16dp"
+                android:text="Savings"
+                android:textAlignment="center"
+                android:textColor="?attr/colorOnPrimary" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/personalAccount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginVertical="8dp"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintEnd_toStartOf="@id/budgetAccount"
+        app:layout_constraintStart_toEndOf="@id/savingsAccount"
+        app:layout_constraintTop_toBottomOf="@id/creditAccount"
+        app:strokeColor="@color/colorPersonalCard">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/icon_personal_attribution"
+                android:paddingVertical="12dp"
+                app:srcCompat="@drawable/ic_noun_personal_104667" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPersonalCard"
+                android:paddingVertical="16dp"
+                android:text="Personal"
+                android:textAlignment="center"
+                android:textColor="?attr/colorOnPrimary" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/budgetAccount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        app:cardCornerRadius="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/personalAccount"
+        app:layout_constraintTop_toTopOf="@id/personalAccount"
+        app:strokeColor="@color/colorBudgetCard">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/icon_budget_attribution"
+                android:paddingVertical="12dp"
+                app:srcCompat="@drawable/ic_noun_budget_2406949" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorBudgetCard"
+                android:paddingVertical="16dp"
+                android:text="Budget"
+                android:textAlignment="center"
+                android:textColor="?attr/colorOnPrimary" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/accountNotesInput"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:hint="Account Notes"
+        android:paddingBottom="16dp"
+        app:boxCornerRadiusTopEnd="8dp"
+        app:boxCornerRadiusTopStart="8dp"
+        app:layout_constraintEnd_toEndOf="@id/accountCardBackground"
+        app:layout_constraintStart_toStartOf="@id/accountCardBackground"
+        app:layout_constraintTop_toBottomOf="@id/savingsAccount">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </com.google.android.material.textfield.TextInputEditText>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

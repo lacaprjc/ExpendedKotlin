@@ -6,17 +6,82 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
-    <TextView
-        android:id="@+id/text_home"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <include
+        android:id="@+id/home_toolbar"
+        layout="@layout/toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/accountsRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        app:layout_constraintBottom_toTopOf="@id/bottomAppBarGroup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/home_toolbar"
+        tools:listitem="@layout/account_item" />
+
+    <TextView
+        android:id="@+id/noAccountsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:text="@string/noAccountsText"
+        app:layout_constraintBottom_toBottomOf="@id/accountsRecyclerView"
+        app:layout_constraintEnd_toEndOf="@id/accountsRecyclerView"
+        app:layout_constraintStart_toStartOf="@id/accountsRecyclerView"
+        app:layout_constraintTop_toTopOf="@id/accountsRecyclerView" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/bottomAppBarGroup"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:constraint_referenced_ids="arrangeAccountsButton, newAccountButton, settingsButton"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/newAccountButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/arrangeAccountsButton"
+        style="@style/IconOnlyButton.NoBorder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_vertical_margin"
+        app:icon="@drawable/ic_noun_reorder"
+        app:iconSize="28dp"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintBottom_toBottomOf="@id/newAccountButton"
+        app:layout_constraintEnd_toStartOf="@id/newAccountButton"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/newAccountButton"
+        style="@style/IconOnlyButton.NoBorder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_vertical_margin"
+        app:icon="@drawable/baseline_add_black_24dp"
+        app:iconSize="28dp"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/settingsButton"
+        app:layout_constraintStart_toEndOf="@id/arrangeAccountsButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/settingsButton"
+        style="@style/IconOnlyButton.NoBorder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_vertical_margin"
+        app:icon="@drawable/ic_settings_24px"
+        app:iconSize="28dp"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintBottom_toBottomOf="@id/newAccountButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/newAccountButton" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

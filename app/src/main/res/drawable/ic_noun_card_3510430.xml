@@ -1,0 +1,17 @@
+<!--Card by Kiran Shastry from the Noun Project-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="@color/colorCreditCard"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M507,127a46,46 0,0 0,-46 -46H51A46,46 0,0 0,5 127V386a46,46 0,0 0,46 46H461a46,46 0,0 0,46 -46ZM17,158H495v55H17ZM460.985,419H51.015A33.833,33.833 0,0 1,17 385.257V225H495V385.257A33.833,33.833 0,0 1,460.985 419ZM495,146H17V126.743A33.833,33.833 0,0 1,51.015 93h409.97A33.833,33.833 0,0 1,495 126.743Z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M427.843,301.538a37.517,37.517 0,0 0,-36.9 31.037,37.462 37.462,0 1,0 0,12.85 37.459,37.459 0,1 0,36.9 -43.887ZM354.043,364.462A25.462,25.462 0,1 1,379.506 339,25.491 25.491,0 0,1 354.044,364.462ZM427.843,364.462A25.462,25.462 0,1 1,453.305 339,25.491 25.491,0 0,1 427.843,364.462Z" />
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M193,312a6,6 0,0 0,-6 -6L53,306a6,6 0,0 0,-6 6v54a6,6 0,0 0,6 6L187,372a6,6 0,0 0,6 -6ZM180,360L59,360L59,318L180,318Z" />
+</vector>

@@ -1,6 +1,34 @@
 <resources>
     <string name="app_name">Expended</string>
-    <string name="title_home">Home</string>
+    <string name="title_home">Accounts</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="noAccountsText">Tap the + button to start adding accounts!</string>
+    <string name="icon_check_attribution">Check by Sophia Bai from the Noun Project</string>
+    <string name="icon_cash_attribution">cash by Kiran Shastry from the Noun Project</string>
+    <string name="icon_credit_attribution">Card by Kiran Shastry from the Noun Project</string>
+    <string name="icon_personal_attribution">personal by Yaroslav Samoylov from the Noun Project</string>
+    <string name="icon_savings_attribution">Saving by mynamepong from the Noun Project</string>
+    <string name="icon_budget_attribution">budget by Smalllike from the Noun Project</string>
+    <string name="transaction_notes_hint">Transaction Notes</string>
+    <string name="default_account_balance">0.00</string>
+    <string name="account_balance_label">Account Balance</string>
+    <string name="account_name_current">Current Account</string>
+    <string name="settings_storage_label">Storage</string>
+    <string name="export_button_text">Export/Backup</string>
+    <string name="import_button_text">Import/Restore</string>
+    <string name="settings_toolbar_text">Settings</string>
+
+    <string name="database_name">accounts.db</string>
+    <string name="delete_all_button_text">Delete All Accounts and Transactions</string>
+    <string name="emptyBalanceHint">0.00</string>
+    <string name="newAccountBalanceHint">Account Balance</string>
+    <string name="accountCardNegativeButton">Delete</string>
+    <string name="accountCardPositiveButton">Add</string>
+    <string name="newTransactionHint">New Transaction</string>
+    <string name="dateHint">Date</string>
+    <string name="timeHint">Time</string>
+    <string name="transactionNegativeButton">Delete</string>
+    <string name="transactionPositiveButton">Add</string>
+    <string name="deleteAccountButton">Delete Account</string>
 </resources>

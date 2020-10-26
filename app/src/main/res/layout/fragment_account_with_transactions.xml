@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/accountDetailsGroup"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/colorPrimary"
+        app:constraint_referenced_ids="accountName, accountBalance, accountBalanceLabel"
+        app:layout_constraintBottom_toBottomOf="@id/accountButtonsGroup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/accountName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:drawablePadding="8dp"
+        android:includeFontPadding="false"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="8dp"
+        android:paddingBottom="16dp"
+        android:text="@string/account_name_current"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        android:textStyle="bold"
+        app:drawableStartCompat="@drawable/ic_noun_cash_3506076"
+        app:drawableTint="?attr/colorControlNormal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/accountBalance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:text="@string/default_account_balance"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline3"
+        android:textStyle="bold"
+        app:autoSizeTextType="uniform"
+        app:drawableStartCompat="@drawable/baseline_attach_money_black_24dp"
+        app:drawableTint="?attr/colorControlNormal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/accountName"
+        app:layout_constraintVertical_bias="0.4" />
+
+    <TextView
+        android:id="@+id/accountBalanceLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/account_balance_label"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/accountBalance" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/accountButtonsGroup"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:constraint_referenced_ids="editAccountButton, deleteAccountButton"
+        app:layout_constraintBottom_toBottomOf="@id/deleteAccountButton"
+        app:layout_constraintEnd_toEndOf="@id/deleteAccountButton"
+        app:layout_constraintStart_toStartOf="@id/editAccountButton"
+        app:layout_constraintTop_toTopOf="@id/deleteAccountButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/editAccountButton"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit Account"
+        android:textColor="?attr/colorControlNormal"
+        app:icon="@drawable/ic_noun_note"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintEnd_toStartOf="@id/deleteAccountButton"
+        app:layout_constraintTop_toTopOf="@id/deleteAccountButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/deleteAccountButton"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+        android:text="@string/deleteAccountButton"
+        android:textColor="?attr/colorControlNormal"
+        app:icon="@drawable/baseline_delete_forever_black_24dp"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/accountBalanceLabel"
+        app:strokeWidth="0dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/transactionsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="@dimen/activity_vertical_margin"
+        app:layout_constraintBottom_toTopOf="@id/bottomAppBarGroup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/accountDetailsGroup"
+        tools:listitem="@layout/transaction_item" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/bottomAppBarGroup"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:constraint_referenced_ids="editAccountButton, newTransactionButton"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/newTransactionButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/newTransactionButton"
+        style="@style/IconOnlyButton.NoBorder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/activity_vertical_margin"
+        app:icon="@drawable/baseline_add_black_24dp"
+        app:iconSize="28dp"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
