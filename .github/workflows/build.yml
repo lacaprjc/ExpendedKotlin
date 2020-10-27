@@ -21,14 +21,46 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+
+      - name: Set up Java 1.8
+        uses: actions/setup-java@v2
+        with:
+          java-version: 1.8
         
       - name: Decode google-services.json
         env:
           FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
         run: echo $FIREBASE_CONFIG > app/google-services.json
 
-      - name: Gradle Clean
-        run: ./gradlew clean
+        # lint
+        # unit test
 
-      - name: Gradle build
-        run: ./gradlew build
+      - name: Gradle Assemble Debug & Release APK
+        run: ./gradlew assemble
+
+      - name: Gradle Assemble Debug & Release App Bundle
+        run: ./gradlew bundle
+
+      - name: Archive Debug APK
+          run: actions/upload-artifact@v2
+          with:
+            name: debug-apk
+            path: app/outputs/apk/debug/app-debug.apk
+
+      - name: Archive Unsigned Release APK
+          run: actions/upload-artifact@v2
+          with:
+            name: unsigned-release-apk
+            path: app/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Archive Debug App Bundle
+          run: actions/upload-artifact@v2
+          with:
+            name: debug-aab
+            path: app/outputs/bundle/debug/app-debug.aab
+
+      - name: Archive Release App Bundle
+          run: actions/upload-artifact@v2
+          with:
+            name: release-aab
+            path: app/outputs/bundle/debug/app-release.aab
