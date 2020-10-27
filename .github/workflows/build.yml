@@ -42,25 +42,25 @@ jobs:
         run: ./gradlew bundle
 
       - name: Archive Debug APK
-        run: actions/upload-artifact@v2
-        with:
-          name: debug-apk
-          path: app/outputs/apk/debug/app-debug.apk
+        uses: actions/upload-artifact@v2
+          with:
+            name: debug-apk
+            path: app/outputs/apk/debug/app-debug.apk
 
       - name: Archive Unsigned Release APK
-        run: actions/upload-artifact@v2
-        with:
-          name: unsigned-release-apk
-          path: app/outputs/apk/release/app-release-unsigned.apk
+        uses: actions/upload-artifact@v2
+          with:
+            name: unsigned-release-apk
+            path: app/outputs/apk/release/app-release-unsigned.apk
 
       - name: Archive Debug App Bundle
-        run: actions/upload-artifact@v2
-        with:
-          name: debug-aab
-          path: app/outputs/bundle/debug/app-debug.aab
+        uses: actions/upload-artifact@v2
+          with:
+            name: debug-aab
+            path: app/outputs/bundle/debug/app-debug.aab
 
       - name: Archive Release App Bundle
-        run: actions/upload-artifact@v2
-        with:
-          name: release-aab
-          path: app/outputs/bundle/debug/app-release.aab
+        uses: actions/upload-artifact@v2
+          with:
+            name: release-aab
+            path: app/outputs/bundle/debug/app-release.aab
