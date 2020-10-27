@@ -43,24 +43,24 @@ jobs:
 
       - name: Archive Debug APK
         uses: actions/upload-artifact@v2
-          with:
-            name: debug-apk
-            path: app/outputs/apk/debug/app-debug.apk
+        with:
+          name: debug-apk
+          path: app/outputs/apk/debug/app-debug.apk
 
       - name: Archive Unsigned Release APK
         uses: actions/upload-artifact@v2
-          with:
-            name: unsigned-release-apk
-            path: app/outputs/apk/release/app-release-unsigned.apk
+        with:
+          name: unsigned-release-apk
+          path: app/outputs/apk/release/app-release-unsigned.apk
 
       - name: Archive Debug App Bundle
         uses: actions/upload-artifact@v2
-          with:
-            name: debug-aab
-            path: app/outputs/bundle/debug/app-debug.aab
+        with:
+          name: debug-aab
+          path: app/outputs/bundle/debug/app-debug.aab
 
       - name: Archive Release App Bundle
         uses: actions/upload-artifact@v2
-          with:
-            name: release-aab
-            path: app/outputs/bundle/debug/app-release.aab
+        with:
+          name: release-aab
+          path: app/outputs/bundle/debug/app-release.aab
