@@ -6,7 +6,6 @@ import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,7 +21,6 @@ import com.lacaprjc.expended.util.getAssociatedColor
 import com.lacaprjc.expended.util.getAssociatedIcon
 import com.lacaprjc.expended.util.toStringWithDecimalPlaces
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
 class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_transactions) {
@@ -96,35 +94,35 @@ class AccountWithTransactionsFragment : Fragment(R.layout.fragment_account_with_
                 ColorStateList.valueOf(accountColor)
         }
 
-        lifecycleScope.launchWhenStarted {
-            accountWithTransactionsViewModel.getAccountWithTransactions(args.accountId)
-                .collect { accountWithTransactions ->
-                    currentAccountWithBalance = AccountWithBalance(
-                        accountWithTransactions.account,
-                        accountWithTransactions.transactions.sumOf { it.amount })
+        accountWithTransactionsViewModel.getAccountWithTransactions(args.accountId)
+            .observe(viewLifecycleOwner) { accountWithTransactions ->
+                currentAccountWithBalance = AccountWithBalance(
+                    accountWithTransactions.account,
+                    accountWithTransactions.transactions.sumOf { it.amount })
 
-                    binding.accountName.setCompoundDrawablesWithIntrinsicBounds(
-                        accountWithTransactions.account.accountType.getAssociatedIcon(),
-                        0,
-                        0,
-                        0
-                    )
+                binding.accountName.setCompoundDrawablesWithIntrinsicBounds(
+                    accountWithTransactions.account.accountType.getAssociatedIcon(),
+                    0,
+                    0,
+                    0
+                )
 
-                    binding.accountName.text = accountWithTransactions.account.name
-                    binding.accountBalance.text =
-                        currentAccountWithBalance.balance.toStringWithDecimalPlaces(2)
+                binding.accountName.text = accountWithTransactions.account.name
+                binding.accountBalance.text =
+                    currentAccountWithBalance.balance.toStringWithDecimalPlaces(2)
 
-                    transactionAdapter.submitTransactions(accountWithTransactions.transactions)
-                    accountViewModel.setAccountType(accountWithTransactions.account.accountType)
-                }
-        }
+                transactionAdapter.submitTransactions(accountWithTransactions.transactions)
+                accountViewModel.setAccountType(accountWithTransactions.account.accountType)
+            }
     }
 
     private fun showDeleteDialog(account: Account) {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Remove Account?")
-            .setMessage("Are you sure you want to remove the account ${account.name}? " +
-                    "This will also remove all associated transactions and is irreversible.")
+            .setMessage(
+                "Are you sure you want to remove the account ${account.name}? " +
+                        "This will also remove all associated transactions and is irreversible."
+            )
             .setPositiveButton("Delete") { dialog, _ ->
                 accountViewModel.deleteAccount(account)
                 dialog.dismiss()

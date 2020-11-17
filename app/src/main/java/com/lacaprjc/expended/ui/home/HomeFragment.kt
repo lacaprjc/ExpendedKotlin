@@ -23,8 +23,6 @@ import com.lacaprjc.expended.util.getAssociatedColor
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -144,26 +142,23 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun subscribeObservers() {
-        lifecycleScope.launchWhenStarted {
-            launch {
-                accountWithTransactionsViewModel.getAllAccountsWithTransactions()
-                    .distinctUntilChanged()
-                    .collectLatest { allAccountsWithTransactions ->
-                        val sortedAccountsWithTransactions =
-                            allAccountsWithTransactions.sortedBy { it.account.orderPosition }
-                        val accountsWithBalances = sortedAccountsWithTransactions.map {
-                            AccountWithBalance(
-                                it.account,
-                                it.transactions.sumOf { transaction -> transaction.amount })
-                        }
+        accountWithTransactionsViewModel.getAllAccountsWithTransactions()
+            .observe(viewLifecycleOwner) { allAccountsWithTransactions ->
+                val sortedAccountsWithTransactions =
+                    allAccountsWithTransactions.sortedBy { it.account.orderPosition }
+                val accountsWithBalances = sortedAccountsWithTransactions.map {
+                    AccountWithBalance(
+                        it.account,
+                        it.transactions.sumOf { transaction -> transaction.amount })
+                }
 
-                        accountAdapter.submitAccounts(accountsWithBalances)
+                accountAdapter.submitAccounts(accountsWithBalances)
 
-                        binding.noAccountsText.visibility =
-                            if (allAccountsWithTransactions.isNotEmpty()) View.INVISIBLE else View.VISIBLE
-                    }
+                binding.noAccountsText.visibility =
+                    if (allAccountsWithTransactions.isNotEmpty()) View.INVISIBLE else View.VISIBLE
             }
 
+        lifecycleScope.launchWhenStarted {
             launch {
                 accountViewModel.getReorderingMode()
                     .collect { mode ->
