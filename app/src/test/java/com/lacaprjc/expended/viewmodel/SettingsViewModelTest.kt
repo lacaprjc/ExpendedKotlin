@@ -8,14 +8,12 @@ import com.lacaprjc.expended.ui.settings.SettingsViewModel
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-@ExperimentalCoroutinesApi
 class SettingsViewModelTest {
     private lateinit var mockedRepository: AccountsWithTransactionsRepository
     private lateinit var mockedLiveDataOfAccountsWithTranscations: Flow<List<AccountWithTransactions>>

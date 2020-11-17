@@ -1,0 +1,92 @@
+ext {
+    def versions = [
+            coreKtx         : "1.3.2",
+            appcompat       : "1.2.0",
+            constraintLayout: "2.0.2",
+            material        : '1.2.1',
+            navigation      : '2.3.1',
+            lifecycle       : '2.2.0',
+
+            firebase        : '25.12.0',
+
+            hiltCore        : '2.29.1-alpha',
+            hiltAndroid     : '1.0.0-alpha02',
+            coroutines      : '1.3.9',
+
+            room            : '2.2.5',
+
+            kotlinCsv: '0.12.0',
+
+            leakCanary      : '2.5',
+            jdkDesugar      : '1.1.1',
+
+            junit           : '4.13.1',
+            archCore        : '2.1.0',
+            mockitoKotlin   : '2.2.0',
+
+            junitExt        : '1.1.2',
+            espressoCore    : '3.3.0'
+    ]
+
+    projectDependencyVersions = [
+            androidGradlePlugin: '4.1.0',
+            kotlin             : '1.4.10',
+            safeArgs           : '2.3.1',
+            hilt               : '2.29.1-alpha',
+            googleServices     : '4.3.4',
+            firebaseCrashlytics: '2.3.0',
+            firebasePerformance: '1.3.2'
+    ]
+
+    firebaseBom = "com.google.firebase:firebase-bom:${versions.firebase}"
+
+    jdkDesugar = "com.android.tools:desugar_jdk_libs:${versions.jdkDesugar}"
+
+    appDependencies = [
+            coreKtx            : "androidx.core:core-ktx:${versions.coreKtx}",
+            appCompat          : "androidx.appcompat:appcompat:${versions.appcompat}",
+            material           : "com.google.android.material:material:${versions.material}",
+            constraintLayout   : "androidx.constraintlayout:constraintlayout:${versions.constraintLayout}",
+            fragmentWithKtx    : "androidx.navigation:navigation-fragment-ktx:${versions.navigation}",
+            uiKtx              : "androidx.navigation:navigation-ui-ktx:${versions.navigation}",
+            runtimeKtx         : "androidx.navigation:navigation-runtime-ktx:${versions.navigation}",
+            lifeCycleExtensions: "androidx.lifecycle:lifecycle-extensions:${versions.lifecycle}",
+            lifeCycleRuntimeKtx: "androidx.lifecycle:lifecycle-runtime:${versions.lifecycle}",
+            liveDataKtx        : "androidx.lifecycle:lifecycle-livedata-ktx:${versions.lifecycle}",
+            viewModelKtx       : "androidx.lifecycle:lifecycle-viewmodel-ktx:${versions.lifecycle}",
+            hiltAndroid        : "com.google.dagger:hilt-android:${versions.hiltCore}",
+            hiltViewModel      : "androidx.hilt:hilt-lifecycle-viewmodel:${versions.hiltAndroid}",
+            roomRuntime        : "androidx.room:room-runtime:${versions.room}",
+            roomKtx            : "androidx.room:room-ktx:${versions.room}",
+            kotlinCsv          : "com.github.doyaaaaaken:kotlin-csv-jvm:${versions.kotlinCsv}",
+            coroutinesCore     : "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}",
+            coroutinesAndroid  : "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}",
+            firebaseAnalytics  : "com.google.firebase:firebase-analytics-ktx",
+            firebaseCrashlytics: "com.google.firebase:firebase-crashlytics-ktx",
+            firebasePerformance: "com.google.firebase:firebase-perf-ktx"
+    ]
+
+    debugAppDependencies = [
+            leakCanary: "com.squareup.leakcanary:leakcanary-android:${versions.leakCanary}"
+    ]
+
+    kaptDependencies = [
+            hiltCompiler       : "com.google.dagger:hilt-compiler:${versions.hiltCore}",
+            hiltAndroidCompiler: "androidx.hilt:hilt-compiler:${versions.hiltAndroid}",
+            roomCompiler       : "androidx.room:room-compiler:${versions.room}"
+    ]
+
+    localTestDependencies = [
+            junit          : "junit:junit:${versions.junit}",
+            archCoreTesting: "androidx.arch.core:core-testing:${versions.archCore}",
+            roomTesting    : "androidx.room:room-testing:${versions.room}",
+            mockitoKotlin  : "com.nhaarman.mockitokotlin2:mockito-kotlin:${versions.mockitoKotlin}",
+            coroutinesTest : "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.coroutines}"
+    ]
+
+    instrumentedTestDependencies = [
+            roomTesting : "androidx.room:room-testing:${versions.room}",
+            junitExt    : "androidx.test.ext:junit:${versions.junitExt}",
+            espressoCore: "androidx.test.espresso:espresso-core:${versions.espressoCore}"
+    ]
+}

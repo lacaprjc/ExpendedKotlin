@@ -47,6 +47,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     override fun onDestroyView() {
+        binding.accountsRecyclerView.adapter = null
         _binding = null
         // update the database if the items were reordered
         super.onDestroyView()

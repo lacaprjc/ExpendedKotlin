@@ -1,0 +1,110 @@
+plugins {
+    id("com.android.application")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
+    id("com.google.firebase.firebase-perf")
+    id("com.github.ben-manes.versions") version "0.33.0"
+    id("kotlin-android")
+    id("org.jetbrains.kotlin.kapt")
+    id("androidx.navigation.safeargs.kotlin")
+    id("dagger.hilt.android.plugin")
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
+
+    defaultConfig {
+        applicationId = "com.lacaprjc.expended"
+        minSdkVersion 23
+        targetSdkVersion 30
+        versionCode = 2
+        versionName = "0.2"
+        vectorDrawables.useSupportLibrary = true
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation":
+                                      "$projectDir/schemas".toString()]
+            }
+        }
+    }
+
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled = false
+            proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt")
+            )
+        }
+        release {
+            minifyEnabled = true
+            proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+            )
+        }
+    }
+
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    viewBinding {
+        android.buildFeatures.viewBinding = true
+    }
+
+    lintOptions {
+        disable("NewApi")
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
+//    useLibrary("android.test.runner")
+    useLibrary("android.test.base")
+    useLibrary("android.test.mock")
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    def appDependencies = rootProject.ext.appDependencies
+    def debugAppDependencies = rootProject.ext.debugAppDependencies
+    def kaptDependencies = rootProject.ext.kaptDependencies
+    def localTestDependencies = rootProject.ext.localTestDependencies
+    def instrumentedTestDependencies = rootProject.ext.instrumentedTestDependencies
+
+    implementation platform(rootProject.ext.firebaseBom)
+
+    implementation appDependencies.values()
+
+    kapt kaptDependencies.values()
+
+    debugImplementation debugAppDependencies.values()
+
+    coreLibraryDesugaring(rootProject.ext.jdkDesugar)
+
+    testImplementation localTestDependencies.values()
+
+    androidTestImplementation instrumentedTestDependencies.values()
+}
