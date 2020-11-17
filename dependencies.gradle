@@ -15,13 +15,14 @@ ext {
 
             room            : '2.2.5',
 
-            kotlinCsv: '0.12.0',
+            kotlinCsv       : '0.12.0',
 
             leakCanary      : '2.5',
             jdkDesugar      : '1.1.1',
 
             junit           : '4.13.1',
             archCore        : '2.1.0',
+            mockitoInline   : '3.5.15',
             mockitoKotlin   : '2.2.0',
 
             junitExt        : '1.1.2',
@@ -80,6 +81,7 @@ ext {
             junit          : "junit:junit:${versions.junit}",
             archCoreTesting: "androidx.arch.core:core-testing:${versions.archCore}",
             roomTesting    : "androidx.room:room-testing:${versions.room}",
+            mockitoInline  : "org.mockito:mockito-inline:${versions.mockitoInline}",
             mockitoKotlin  : "com.nhaarman.mockitokotlin2:mockito-kotlin:${versions.mockitoKotlin}",
             coroutinesTest : "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.coroutines}"
     ]

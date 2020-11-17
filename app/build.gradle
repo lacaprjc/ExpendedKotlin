@@ -3,7 +3,6 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
     id("com.google.firebase.firebase-perf")
-    id("com.github.ben-manes.versions") version "0.33.0"
     id("kotlin-android")
     id("org.jetbrains.kotlin.kapt")
     id("androidx.navigation.safeargs.kotlin")
@@ -88,23 +87,21 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
-    def appDependencies = rootProject.ext.appDependencies
-    def debugAppDependencies = rootProject.ext.debugAppDependencies
-    def kaptDependencies = rootProject.ext.kaptDependencies
-    def localTestDependencies = rootProject.ext.localTestDependencies
-    def instrumentedTestDependencies = rootProject.ext.instrumentedTestDependencies
-
     implementation platform(rootProject.ext.firebaseBom)
-
-    implementation appDependencies.values()
-
-    kapt kaptDependencies.values()
-
-    debugImplementation debugAppDependencies.values()
-
     coreLibraryDesugaring(rootProject.ext.jdkDesugar)
 
+    def appDependencies = rootProject.ext.appDependencies
+    implementation appDependencies.values()
+
+    def kaptDependencies = rootProject.ext.kaptDependencies
+    kapt kaptDependencies.values()
+
+    def debugAppDependencies = rootProject.ext.debugAppDependencies
+    debugImplementation debugAppDependencies.values()
+
+    def localTestDependencies = rootProject.ext.localTestDependencies
     testImplementation localTestDependencies.values()
 
+    def instrumentedTestDependencies = rootProject.ext.instrumentedTestDependencies
     androidTestImplementation instrumentedTestDependencies.values()
 }
